@@ -163,6 +163,7 @@
         const headerTitle = document.getElementById('header-title');
         const contentArea = document.getElementById('content');
         const navItems = document.querySelectorAll('.nav-item');
+        const htmlElement = document.querySelector('html'); // للتحكم في اتجاه الصفحة
 
         const userData = {
             name: "بركاني أمياس",
@@ -181,31 +182,82 @@
             currentCardType: 'student', // الحالة الافتراضية للبطاقة المعروضة
             currentLanguage: 'ar-DZ' // اللغة الافتراضية (العربية)
         };
+        
+        // ** قاموس الترجمة (لغرض العرض فقط) **
+        const translations = {
+            'ar-DZ': {
+                'portal_title': 'بوابة الطالب',
+                'nav_home': 'الرئيسية',
+                'nav_cards': 'البطاقات',
+                'nav_profile': 'الملف الشخصي',
+                'profile_title': 'الملف الشخصي',
+                'birth_place_label': 'مكان الميلاد (Place of Birth)',
+                'birth_date_label': 'تاريخ الميلاد (Date of Birth)',
+                'language_switch_label': 'تغيير اللغة (Change Language)',
+                'logout_button': 'LOGOUT',
+                'university_name': 'وزارة التعليم العالي والبحث العلمي',
+                'university_name_profile': 'جامعة بجاية',
+                'birth_place': 'بجاية',
+                'birth_date': '04-12-2005'
+            },
+            'fr-DZ': {
+                'portal_title': 'Portail Étudiant',
+                'nav_home': 'Accueil',
+                'nav_cards': 'Cartes',
+                'nav_profile': 'Profil',
+                'profile_title': 'Profil',
+                'birth_place_label': 'Lieu de naissance (مكان الميلاد)',
+                'birth_date_label': 'Date de naissance (تاريخ الميلاد)',
+                'language_switch_label': 'Changer la langue (تغيير اللغة)',
+                'logout_button': 'DÉCONNEXION',
+                'university_name': 'Ministère de l\'Enseignement Supérieur',
+                'university_name_profile': 'Université de Béjaïa',
+                'birth_place': 'Béjaïa',
+                'birth_date': '04/12/2005'
+            }
+        };
+
+        /**
+         * دالة جلب النص المترجم
+         * @param {string} key - مفتاح النص في القاموس
+         */
+        function t(key) {
+            return translations[userData.currentLanguage][key] || key;
+        }
 
         // ----------------------------------------------------------------------
         // منطق تبديل اللغة (Language Toggle Logic)
         // ----------------------------------------------------------------------
         
         /**
-         * دالة لتبديل اللغة وتحديث محتوى زر اللغة
+         * دالة لتبديل اللغة وتحديث اتجاه الواجهة بالكامل
          */
         function toggleLanguage() {
-            // التبديل بين العربية والفرنسية
+            // 1. التبديل بين العربية والفرنسية
             if (userData.currentLanguage === 'ar-DZ') {
                 userData.currentLanguage = 'fr-DZ';
+                htmlElement.setAttribute('lang', 'fr');
+                htmlElement.setAttribute('dir', 'ltr');
+                document.getElementById('app').classList.add('text-left');
+                document.getElementById('app').classList.remove('text-right');
             } else {
                 userData.currentLanguage = 'ar-DZ';
+                htmlElement.setAttribute('lang', 'ar');
+                htmlElement.setAttribute('dir', 'rtl');
+                document.getElementById('app').classList.add('text-right');
+                document.getElementById('app').classList.remove('text-left');
             }
 
-            // تحديث محتوى الزر (في حال كان المستخدم لا يزال في صفحة الملف الشخصي)
-            const langButton = document.getElementById('languageButton');
-            if (langButton) {
-                langButton.textContent = userData.currentLanguage;
+            // 2. إعادة عرض الصفحة النشطة حالياً (عادةً الملف الشخصي)
+            // نحدد الزر النشط حالياً لإعادة التنقل إليه وتحديث الواجهة
+            const activeNavButton = document.querySelector('.nav-item.active');
+            let screen = 'home';
+            if (activeNavButton) {
+                // استخلاص اسم الشاشة من دالة navigate
+                screen = activeNavButton.getAttribute('onclick').match(/'([^']*)'/)[1];
             }
             
-            // في تطبيق فعلي، هنا يتم إعادة تحميل وترجمة واجهة المستخدم
-            // (في هذا التطبيق، سنكتفي بتحديث عرض الملف الشخصي لتعكس حالة الزر)
-            // بما أن الصفحة لا تزال مرسومة، يكفي تحديث محتوى الزر.
+            navigate(screen, activeNavButton);
         }
         
         // ----------------------------------------------------------------------
@@ -218,16 +270,24 @@
          */
         function switchCard(direction) {
             let newCardType = userData.currentCardType;
+            const isRTL = htmlElement.getAttribute('dir') === 'rtl';
 
-            // في سياق اللغة العربية (RTL):
-            // السحب إلى اليسار (Left Swipe) يعني الانتقال إلى التالي (من الطالب إلى الإقامة)
-            if (userData.currentCardType === 'student' && direction === 'left') {
-                newCardType = 'residence';
-            // السحب إلى اليمين (Right Swipe) يعني الانتقال إلى السابق (من الإقامة إلى الطالب)
-            } else if (userData.currentCardType === 'residence' && direction === 'right') {
-                newCardType = 'student';
+            if (isRTL) {
+                // RTL (العربية): السحب لليسار هو التالي، لليمين هو السابق
+                if (userData.currentCardType === 'student' && direction === 'left') {
+                    newCardType = 'residence';
+                } else if (userData.currentCardType === 'residence' && direction === 'right') {
+                    newCardType = 'student';
+                }
+            } else {
+                // LTR (الفرنسية): السحب لليمين هو التالي، لليسار هو السابق (عكس RTL)
+                if (userData.currentCardType === 'student' && direction === 'right') {
+                    newCardType = 'residence';
+                } else if (userData.currentCardType === 'residence' && direction === 'left') {
+                    newCardType = 'student';
+                }
             }
-
+            
             // إذا تغير نوع البطاقة، قم بعرضها
             if (newCardType !== userData.currentCardType) {
                 displayCard(newCardType);
@@ -295,19 +355,29 @@
 
             if (screen === 'home') {
                 renderHome();
-                headerTitle.textContent = 'بوابة الطالب';
+                headerTitle.textContent = t('portal_title');
             } else if (screen === 'cards') {
                 renderCards();
-                headerTitle.textContent = 'البطاقات';
+                headerTitle.textContent = t('nav_cards');
             } else if (screen === 'profile') {
                 renderProfile();
-                headerTitle.textContent = 'الملف الشخصي';
+                headerTitle.textContent = t('nav_profile');
             }
 
             // 3. إعادة إنشاء أيقونات Lucide
             lucide.createIcons();
+            
+            // 4. تحديث النصوص في شريط التنقل السفلي
+            updateNavText();
         }
         
+        // دالة مساعدة لتحديث نصوص شريط التنقل
+        function updateNavText() {
+             document.querySelector('button[onclick*="\'home\'"] span').textContent = t('nav_home');
+             document.querySelector('button[onclick*="\'cards\'"] span').textContent = t('nav_cards');
+             document.querySelector('button[onclick*="\'profile\'"] span').textContent = t('nav_profile');
+        }
+
         /**
          * دالة لعرض رسالة مخصصة (تحل محل alert)
          */
@@ -340,6 +410,7 @@
         // 1. شاشة الرئيسية (Home Screen) 
         // ----------------------------------------------------------------------
         function renderHome() {
+            // ملاحظة: النصوص داخل المربعات لا يتم ترجمتها حالياً للحفاظ على البساطة
             const tiles = [
                 { title: 'كشف النقاط', icon: 'file-text' },
                 { title: 'جدول التوقيت', icon: 'calendar' },
@@ -359,8 +430,8 @@
             const headerHtml = `
                 <div class="bg-[--primary-green] rounded-2xl p-4 shadow-lg mb-4 text-center">
                     <img src="https://placehold.co/100x30/008060/ffffff?text=PROGRES" alt="PROGRES Logo" class="mx-auto h-8 mb-2" onerror="this.src='https://placehold.co/100x30/008060/ffffff?text=PROGRES'">
-                    <p class="text-white text-sm font-light">الجمهورية الجزائرية الديمقراطية الشعبية</p>
-                    <p class="text-white text-xs">وزارة التعليم العالي والبحث العلمي</p>
+                    <p class="text-white text-sm font-light">${userData.currentLanguage === 'ar-DZ' ? 'الجمهورية الجزائرية الديمقراطية الشعبية' : 'République Algérienne Démocratique et Populaire'}</p>
+                    <p class="text-white text-xs">${t('university_name')}</p>
                 </div>
             `;
 
@@ -387,6 +458,8 @@
         // 2. شاشة البطاقات (Cards Screen)
         // ----------------------------------------------------------------------
         function renderCards() {
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            
             // إضافة فئات التوسيط للبطاقة وجعلها تبدأ من الأعلى
             contentArea.classList.add('flex', 'flex-col', 'items-center', 'justify-start');
             contentArea.classList.remove('p-4', 'space-y-4'); 
@@ -396,10 +469,10 @@
                     <!-- أزرار اختيار نوع البطاقة -->
                     <div class="flex bg-white rounded-xl shadow-md p-1">
                         <button id="btnStudentCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('student')">
-                            بطاقة الطالب
+                            ${isRTL ? 'بطاقة الطالب' : 'Carte Étudiant'}
                         </button>
                         <button id="btnResidenceCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('residence')">
-                            بطاقة الإقامة
+                            ${isRTL ? 'بطاقة الإقامة' : 'Carte Résidence'}
                         </button>
                     </div>
 
@@ -412,28 +485,28 @@
                     <div id="customizationControls" class="space-y-4">
                         <!-- خاصية رفع الصورة الشخصية (مستقلة) -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">تغيير الصورة الشخصية:</p>
+                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير الصورة الشخصية:' : 'Changer la photo de profil:'}</p>
                             <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">ملاحظة: الصورة المستخدمة في جميع البطاقات.</p>
+                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ملاحظة: الصورة المستخدمة في جميع البطاقات.' : 'Note: L\'image est utilisée pour toutes les cartes.'}</p>
                         </div>
 
                         <!-- 1. خلفية بطاقة الطالب -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">تغيير خلفية بطاقة الطالب:</p>
+                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير خلفية بطاقة الطالب:' : 'Changer le fond de la carte étudiant:'}</p>
                             <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">ستظهر كخلفية لبطاقة الطالب.</p>
+                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ستظهر كخلفية لبطاقة الطالب.' : 'Apparaîtra comme fond pour la carte étudiant.'}</p>
                             <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
-                                إزالة الخلفية
+                                ${isRTL ? 'إزالة الخلفية' : 'Supprimer le fond'}
                             </button>
                         </div>
 
                         <!-- 2. خلفية بطاقة الإقامة -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">تغيير خلفية بطاقة الإقامة:</p>
+                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير خلفية بطاقة الإقامة:' : 'Changer le fond de la carte résidence:'}</p>
                             <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">ستظهر كخلفية لبطاقة الإقامة.</p>
+                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ستظهر كخلفية لبطاقة الإقامة.' : 'Apparaîtra comme fond pour la carte résidence.'}</p>
                             <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
-                                إزالة الخلفية
+                                ${isRTL ? 'إزالة الخلفية' : 'Supprimer le fond'}
                             </button>
                         </div>
                     </div> <!-- نهاية customizationControls -->
@@ -607,58 +680,61 @@
         // 3. شاشة الملف الشخصي (Profile Screen) 
         // ----------------------------------------------------------------------
         function renderProfile() {
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            
             // تحديث الصورة في الهيدر
             const profileImageHeader = document.getElementById('profileImageHeader');
             if (profileImageHeader) profileImageHeader.src = userData.idCardImage;
             
+            // تحديد اتجاه النص والحاويات
+            const directionClass = isRTL ? 'text-right' : 'text-left';
+            const itemMarginClass = isRTL ? 'ml-4' : 'mr-4'; // عكس الهامش الجانبي
 
             const profileHtml = `
                 <!-- بطاقة الاسم والجامعة (الخضراء) -->
-                <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white">
-                    <img id="profileImageCard" src="${userData.idCardImage}" alt="صورة المستخدم" class="w-14 h-14 rounded-full object-cover border-2 border-white ml-4">
-                    <div class="text-right">
-                        <!-- في الصورة، الاسم بالإنجليزية -->
+                <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white ${isRTL ? '' : 'flex-row-reverse'}">
+                    <img id="profileImageCard" src="${userData.idCardImage}" alt="صورة المستخدم" class="w-14 h-14 rounded-full object-cover border-2 border-white ${itemMarginClass}">
+                    <div class="${directionClass} flex-grow">
+                        <!-- الاسم بالإنجليزية ثابت -->
                         <p class="text-lg font-bold">${userData.englishName}</p>
-                        <!-- في الصورة، الجامعة بالفرنسية -->
-                        <p class="text-sm font-light">université de béjaia</p>
+                        <!-- الجامعة يتم ترجمتها -->
+                        <p class="text-sm font-light">${t('university_name_profile')}</p>
                     </div>
                 </div>
 
                 <!-- بطاقة مكان الميلاد -->
-                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 space-x-reverse shadow-md">
+                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md">
                     <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-gray-500">مكان الميلاد (Place of Birth)</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthPlace}</p>
+                    <div class="${directionClass} flex-grow">
+                        <p class="text-sm font-medium text-gray-500">${t('birth_place_label')}</p>
+                        <p class="text-lg font-bold text-gray-800 mt-1">${t('birth_place')}</p>
                     </div>
                 </div>
 
                 <!-- بطاقة تاريخ الميلاد -->
-                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 space-x-reverse shadow-md mt-4">
+                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md mt-4">
                     <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-gray-500">تاريخ الميلاد (Date of Birth)</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthDate}</p>
+                    <div class="${directionClass} flex-grow">
+                        <p class="text-sm font-medium text-gray-500">${t('birth_date_label')}</p>
+                        <p class="text-lg font-bold text-gray-800 mt-1">${t('birth_date')}</p>
                     </div>
                 </div>
 
                 <!-- بطاقة تغيير اللغة -->
                 <div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-md mt-4">
-                    <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="flex items-center space-x-3 ${isRTL ? 'space-x-reverse' : ''}">
                         <i data-lucide="languages" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
-                        <p class="text-base font-medium text-gray-800">تغيير اللغة (Change Language)</p>
+                        <p class="text-base font-medium text-gray-800">${t('language_switch_label')}</p>
                     </div>
-                    <!-- تم تعديل الزر لإضافة ID واستدعاء دالة toggleLanguage() -->
+                    <!-- الزر يستدعي دالة التبديل ويظهر اللغة الحالية -->
                     <button id="languageButton" onclick="toggleLanguage()" class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
                         ${userData.currentLanguage}
                     </button>
                 </div>
                 
-                <!-- تم إزالة زر التحميل كتطبيق هنا -->
-
                 <!-- زر تسجيل الخروج -->
                 <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
-                    LOGOUT
+                    ${t('logout_button')}
                 </button>
             `;
             contentArea.innerHTML = profileHtml;
