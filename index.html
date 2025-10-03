@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الطالب | Student Portal</title>
     
-    <!-- PWA Meta Tags (Left for basic compatibility) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#008060">
-    
     <!-- تحميل Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- تحميل مكتبة Lucide Icons لأيقونات واجهة المستخدم -->
@@ -30,10 +25,11 @@
             scrollbar-width: none;  /* Firefox */
         }
         
-        /* الألوان والثوابت */
+        /* الألوان والثوابت - تم تحديثها لتطابق الألوان في الصورة بدقة */
         :root {
-            --primary-green: #008060; /* اللون الأخضر الداكن */
-            --nav-bg: #2c334b; /* لون الشريط السفلي */
+            --primary-green: #2E8B57; /* اللون الأخضر الداكن للملف الشخصي */
+            --tile-bg: #00A381; /* لون أزرار الصفحة الرئيسية */
+            --nav-bg: #353B47; /* لون الشريط السفلي (كحلي/رمادي غامق) */
             --logout-red: #dc2626; /* لون الأحمر للخروج - red-600 */
         }
 
@@ -53,9 +49,9 @@
             color: #ffffff;
         }
         .nav-item.active .bg-active {
-            background-color: var(--primary-green);
+            background-color: var(--tile-bg); /* استخدام لون أزرار الشاشة الرئيسية للأيقونة النشطة */
             /* إضافة ظل خفيف للزر النشط */
-            box-shadow: 0 4px 10px rgba(0, 128, 96, 0.4); 
+            box-shadow: 0 4px 10px rgba(0, 163, 129, 0.4); 
             /* عند النشاط، نجعل الأيقونة أكبر قليلاً لإبرازها */
             transform: scale(1.05);
         }
@@ -98,6 +94,16 @@
             background-color: rgba(255, 255, 255, 0.6); 
             z-index: 5; /* يكون أعلى من الخلفية، وأسفل محتوى البطاقة */
         }
+        
+        /* تنسيق الأزرار الصغيرة للإخفاء/الإظهار */
+        .toggle-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
     </style>
 </head>
@@ -110,7 +116,7 @@
         <header id="header" class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
             <h1 id="header-title" class="text-xl font-bold text-gray-800">بوابة الطالب</h1>
             <!-- شعار الملف الشخصي الصغير في الركن العلوي الأيمن -->
-            <img id="profileImageHeader" src="https://placehold.co/40x40/008060/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/008060/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-green-600">
+            <img id="profileImageHeader" src="https://placehold.co/40x40/00A381/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
         </header>
 
         <!-- محتوى الصفحة (Content) -->
@@ -178,10 +184,10 @@
             year: "2025/2026",
             matricule: "UN0601202525353025418",
             residenceInfo: "برشيش 3 - القسم: بجاية - الجناح والغرفة: 4-203", // بيانات بطاقة الإقامة
-            idCardImage: "https://placehold.co/40x40/008060/ffffff?text=U", // رابط الصورة الشخصية الافتراضي
+            idCardImage: "https://placehold.co/40x40/00A381/ffffff?text=U", // رابط الصورة الشخصية الافتراضي
             studentCardBackground: null, 
             residenceCardBackground: null, 
-            currentCardType: 'student', 
+            currentCardType: 'student', // الافتراضي هو بطاقة الطالب
             currentLanguage: 'ar-DZ', // اللغة الافتراضية (العربية)
             imageInputsVisible: true // حالة إظهار/إخفاء حقول الصور في شاشة البطاقات
         };
@@ -204,7 +210,7 @@
                 'edit_birth_date_label': 'تاريخ الميلاد',
                 'save_button': 'حفظ التغييرات',
                 'cancel_button': 'إلغاء',
-                'logout_button': 'LOGOUT',
+                'logout_button': 'تسجيل الخروج',
                 'university_name': 'وزارة التعليم العالي والبحث العلمي',
                 'university_name_profile': 'جامعة بجاية',
                 'student_card_button': 'بطاقة الطالب',
@@ -221,6 +227,21 @@
                 'hide_inputs': 'إخفاء حقول الصور',
                 'success': 'نجاح',
                 'save_success_message': 'تم حفظ معلومات الملف الشخصي بنجاح.',
+                
+                // تحديث نصوص الأزرار لتتناسب مع الصورة المرفقة
+                'tile_discharge': 'كشف النقاط',
+                'tile_timetable': 'جدول التوقيت',
+                'tile_group_section': 'المجموعة والفوج',
+                'tile_exams_schedule': 'جدول الامتحانات',
+                'tile_exam_grades': 'نقاط الامتحانات',
+                'tile_assessment': 'التقييم',
+                'tile_percentage': 'النسبة المئوية (%)',
+                'tile_academic_transcripts': 'الوثائق الأكاديمية',
+                'tile_debts': 'الديون',
+                'tile_academic_vacation': 'عطلة أكاديمية',
+                'tile_enrollments': 'التسجيلات',
+                'tile_restauration': 'الإطعام',
+                'tile_other_services': 'خدمات أخرى',
             },
             'fr-DZ': {
                 'portal_title': 'Portail Étudiant',
@@ -255,6 +276,21 @@
                 'hide_inputs': 'Masquer les champs image',
                 'success': 'Succès',
                 'save_success_message': 'Les informations du profil ont été enregistrées avec succès.',
+
+                // تحديث نصوص الأزرار لتتناسب مع الصورة المرفقة
+                'tile_discharge': 'Discharge',
+                'tile_timetable': 'Timetable',
+                'tile_group_section': 'Group and Section',
+                'tile_exams_schedule': 'Exams Schedule',
+                'tile_exam_grades': 'Exam Grades',
+                'tile_assessment': 'Assessment',
+                'tile_percentage': 'Percentage (%)',
+                'tile_academic_transcripts': 'Academic transcripts',
+                'tile_debts': 'Debts',
+                'tile_academic_vacation': 'Academic vacation',
+                'tile_enrollments': 'Enrollments',
+                'tile_restauration': 'Restoration',
+                'tile_other_services': 'Other services',
             }
         };
 
@@ -585,43 +621,72 @@
 
 
         // ----------------------------------------------------------------------
-        // 1. شاشة الرئيسية (Home Screen) 
+        // 1. شاشة الرئيسية (Home Screen) - تم تحديثها لتطابق الصورة
         // ----------------------------------------------------------------------
         function renderHome() {
-            // ملاحظة: النصوص داخل المربعات لا يتم ترجمتها حالياً للحفاظ على البساطة
+            // قائمة الأزرار المطابقة للصورة المرفقة
             const tiles = [
-                { title: 'كشف النقاط', icon: 'file-text' },
-                { title: 'جدول التوقيت', icon: 'calendar' },
-                { title: 'المجموعة والفوج', icon: 'users' },
-                { title: 'جدول الامتحانات', icon: 'calendar-check' },
-                { title: 'نقاط الامتحانات', icon: 'graduation-cap' },
-                { title: 'التقييم', icon: 'award' },
-                { title: 'النسبة المئوية (%)', icon: 'pie-chart' },
-                { title: 'الوثائق الأكاديمية', icon: 'folder-open' },
-                { title: 'الديون', icon: 'calculator' },
-                { title: 'عطلة أكاديمية', icon: 'archive' },
-                { title: 'التسجيلات', icon: 'book-open' },
-                { title: 'الإطعام', icon: 'utensils' },
-                { title: 'خدمات أخرى', icon: 'grid' },
+                { titleKey: 'tile_discharge', icon: 'file-text' },
+                { titleKey: 'tile_timetable', icon: 'calendar' },
+                { titleKey: 'tile_group_section', icon: 'users' },
+                { titleKey: 'tile_exams_schedule', icon: 'calendar-check' },
+                { titleKey: 'tile_exam_grades', icon: 'graduation-cap' },
+                { titleKey: 'tile_assessment', icon: 'award' },
+                { titleKey: 'tile_percentage', icon: 'pie-chart' },
+                { titleKey: 'tile_academic_transcripts', icon: 'folder-open' },
+                { titleKey: 'tile_debts', icon: 'calculator' },
+                { titleKey: 'tile_academic_vacation', icon: 'archive' },
+                { titleKey: 'tile_enrollments', icon: 'book-open' },
+                { titleKey: 'tile_restauration', icon: 'utensils' },
+                { titleKey: 'tile_other_services', icon: 'grid' },
             ];
+            
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            const directionClass = isRTL ? 'text-right' : 'text-left';
 
             const headerHtml = `
+                <!-- تصميم البانر الأخضر العلوي المطابق للصورة -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 shadow-lg mb-4 text-center">
-                    <img src="https://placehold.co/100x30/008060/ffffff?text=PROGRES" alt="PROGRES Logo" class="mx-auto h-8 mb-2" onerror="this.src='https://placehold.co/100x30/008060/ffffff?text=PROGRES'">
-                    <p class="text-white text-sm font-light">${userData.currentLanguage === 'ar-DZ' ? 'الجمهورية الجزائرية الديمقراطية الشعبية' : 'République Algérienne Démocratique et Populaire'}</p>
-                    <p class="text-white text-xs">${t('university_name')}</p>
+                    <!-- PROGRES Logo مع محاذاة في الوسط -->
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <!-- الشعار نفسه (تم استخدام placeholder بألوان متقاربة) -->
+                        <img src="https://placehold.co/150x30/10B981/ffffff?text=PROGRES" alt="PROGRES Logo" class="h-6" onerror="this.src='https://placehold.co/150x30/10B981/ffffff?text=PROGRES'">
+                        <p class="text-white text-xs font-light tracking-wide">${t('university_name')}</p>
+                    </div>
                 </div>
             `;
 
+            // تصميم الخانة (Tile) ليناسب الشكل الموضح في الصورة
             const tilesHtml = tiles.map(tile => `
-                <button class="bg-white hover:bg-gray-50 active:bg-gray-100 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-md transition duration-150 ease-in-out h-32">
-                    <i data-lucide="${tile.icon}" class="w-8 h-8 text-[--primary-green] mb-2"></i>
-                    <span class="text-sm font-medium text-gray-700">${tile.title}</span>
+                <button class="
+                    bg-[--tile-bg] 
+                    text-white 
+                    rounded-2xl 
+                    p-3 
+                    flex 
+                    flex-col 
+                    items-center 
+                    justify-center 
+                    text-center 
+                    shadow-lg 
+                    transition 
+                    duration-150 
+                    ease-in-out 
+                    h-24 
+                    w-full 
+                    hover:bg-green-700 
+                    active:bg-green-800
+                ">
+                    <!-- الأيقونة يتم استخدامها مع Lucide -->
+                    <i data-lucide="${tile.icon}" class="w-6 h-6 mb-1"></i>
+                    <!-- النص باللون الأبيض وحجم أصغر -->
+                    <span class="text-sm font-medium leading-tight">${t(tile.titleKey)}</span>
                 </button>
             `).join('');
 
             contentArea.innerHTML = `
                 ${headerHtml}
+                <!-- الشبكة (Grid) 2x2 مع مسافة واسعة بين الخانات (gap-4) -->
                 <div class="grid grid-cols-2 gap-4 pb-4">
                     ${tilesHtml}
                 </div>
@@ -633,7 +698,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // 2. شاشة البطاقات (Cards Screen)
+        // 2. شاشة البطاقات (Cards Screen) - تم حذف أزرار التبديل
         // ----------------------------------------------------------------------
         function renderCards() {
             const isRTL = userData.currentLanguage === 'ar-DZ';
@@ -644,17 +709,8 @@
 
             const controlsHtml = `
                 <div class="w-full max-w-sm p-4 space-y-4">
-                    <!-- أزرار اختيار نوع البطاقة -->
-                    <div class="flex bg-white rounded-xl shadow-md p-1">
-                        <button id="btnStudentCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('student')">
-                            ${t('student_card_button')}
-                        </button>
-                        <button id="btnResidenceCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('residence')">
-                            ${t('residence_card_button')}
-                        </button>
-                    </div>
-
-                    <!-- حاوية عرض البطاقة - تم إضافة فئات الانتقال إليها -->
+                    
+                    <!-- حاوية عرض البطاقة - الآن هي أول عنصر تحت العنوان -->
                     <div id="cardDisplayArea" class="w-full flex justify-center py-4 transition-opacity duration-300 opacity-0">
                         <!-- سيتم تحميل البطاقة هنا بواسطة displayCard() -->
                     </div>
@@ -668,11 +724,11 @@
                             <!-- الأزرار الصغيرة للإخفاء والإظهار -->
                             <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
                                 <!-- زر الإظهار -->
-                                <button id="showBtn" onclick="toggleImageInputs(true)" class="w-9 h-9 p-0 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
+                                <button id="showBtn" onclick="toggleImageInputs(true)" class="toggle-btn bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
                                     <i data-lucide="eye" class="w-5 h-5"></i>
                                 </button>
                                 <!-- زر الإخفاء -->
-                                <button id="hideBtn" onclick="toggleImageInputs(false)" class="w-9 h-9 p-0 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
+                                <button id="hideBtn" onclick="toggleImageInputs(false)" class="toggle-btn bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
                                     <i data-lucide="eye-off" class="w-5 h-5"></i>
                                 </button>
                             </div>
@@ -680,17 +736,19 @@
 
                         <!-- حاوية حقول إدخال الصور التي سيتم إخفاؤها/إظهارها -->
                         <div id="imageInputsContainer" class="space-y-4"> 
-                            <!-- خاصية رفع الصورة الشخصية (مستقلة) -->
+                            <!-- خاصية رفع الصورة الشخصية (مشتركة) -->
                             <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                                 <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
-                                <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
+                                <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
                                 <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
                             </div>
 
                             <!-- 1. خلفية بطاقة الطالب -->
                             <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                                 <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
-                                <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
+                                <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
                                 <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
                                 <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
                                     ${t('remove_background')}
@@ -700,7 +758,8 @@
                             <!-- 2. خلفية بطاقة الإقامة -->
                             <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                                 <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
-                                <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
+                                <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
                                 <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
                                 <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
                                     ${t('remove_background')}
@@ -713,8 +772,8 @@
 
             contentArea.innerHTML = controlsHtml;
 
-            // عرض البطاقة الافتراضية بعد تحميل المحتوى
-            displayCard(userData.currentCardType, true);
+            // عرض البطاقة الافتراضية (بطاقة الطالب)
+            displayCard('student', true);
             
             // **تفعيل كشف التمرير على منطقة عرض البطاقة**
             const cardDisplayArea = document.getElementById('cardDisplayArea');
@@ -732,9 +791,10 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         userData.idCardImage = e.target.result;
-                        // تحديث الصورة في الهيدر والبطاقة
+                        // تحديث الصورة في الهيدر والبطاقة (التي ما زالت تظهر في الهيدر)
                         const profileImageHeader = document.getElementById('profileImageHeader');
                         if(profileImageHeader) profileImageHeader.src = userData.idCardImage;
+                        // إعادة عرض البطاقة لتحديث الصورة
                         displayCard(userData.currentCardType);
                     };
                     reader.readAsDataURL(file);
@@ -802,20 +862,8 @@
             const cardDisplayArea = document.getElementById('cardDisplayArea');
             if (!cardDisplayArea) return;
 
-            // 1. تحديث حالة الأزرار
-            const btnStudent = document.getElementById('btnStudentCard');
-            const btnResidence = document.getElementById('btnResidenceCard');
-            if (btnStudent && btnResidence) {
-                if (type === 'student') {
-                    btnStudent.classList.add('bg-[--primary-green]', 'text-white');
-                    btnResidence.classList.remove('bg-[--primary-green]', 'text-white');
-                    btnResidence.classList.add('text-gray-700');
-                } else {
-                    btnResidence.classList.add('bg-[--primary-green]', 'text-white');
-                    btnStudent.classList.remove('bg-[--primary-green]', 'text-white');
-                    btnStudent.classList.add('text-gray-700');
-                }
-            }
+            // 1. تحديث حالة نوع البطاقة الحالية
+            userData.currentCardType = type;
 
             // 2. تطبيق تأثير التلاشي للإخفاء
             if (!skipAnimation) {
@@ -836,15 +884,12 @@
                 cardDisplayArea.classList.remove('opacity-0');
                 cardDisplayArea.classList.add('opacity-100');
             }, 300);
-
-            userData.currentCardType = type;
         }
 
         /**
-         * دالة مساعدة لتوليد محتوى البطاقة بناءً على النوع (الآن فارغة تمامًا)
+         * دالة مساعدة لتوليد محتوى البطاقة (فارغة تماماً الآن)
          */
         function updateCardContent(type, cardDisplayArea) {
-            let cardHtml = '';
             
             // تحديد الخلفية الصحيحة بناءً على نوع البطاقة المعروضة
             const cardBackground = (type === 'student') 
@@ -856,12 +901,8 @@
                 ? `style="background-image: url('${cardBackground}'); background-size: cover; background-position: center;"` 
                 : '';
             
-            // تحديد محتوى النص الداخلي (للتذكير بنوع البطاقة فقط)
-            const cardText = (type === 'student') ? t('student_card_button') : t('residence_card_button');
-
-            // تصميم البطاقة الفارغة مع الخلفية والنقوش
-            cardHtml = `
-                <!-- البطاقة الفارغة (Hollow Card) -->
+            // **هذا هو المحتوى: البطاقة فارغة تماماً بناءً على طلبك**
+            const cardHtml = `
                 <div id="idCard" class="id-card-container bg-white rounded-2xl p-3 shadow-2xl relative overflow-hidden" ${backgroundStyle}>
                     
                     <!-- طبقة التعتيم (Overlay) - تستخدم فقط إذا لم يكن هناك صورة خلفية مخصصة -->
@@ -870,18 +911,15 @@
                     <!-- تذييل مزخرف (الخلفية منقطة) - يظهر فقط في حال عدم وجود صورة خلفية مخصصة -->
                     ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
                     
-                    <!-- المحتوى الداخلي -->
-                    <div class="relative z-20 w-full h-full flex flex-col items-center justify-center text-center">
-                         <i data-lucide="info" class="w-8 h-8 text-gray-500 mb-2"></i>
-                         <p class="text-gray-600 font-bold text-xl">${cardText}</p>
-                         <img src="${userData.idCardImage}" alt="صورة المستخدم" class="mt-4 w-16 h-16 rounded-full object-cover border-2 border-gray-400">
-                         <p class="mt-2 text-sm text-gray-700">${userData.englishName}</p>
+                    <!-- المحتوى الداخلي الفارغ - لا يوجد شيء هنا -->
+                    <div class="relative z-20 w-full h-full flex items-center justify-center">
+                         <!-- منطقة فارغة تماماً -->
                     </div>
                 </div>
             `;
 
             cardDisplayArea.innerHTML = cardHtml;
-            lucide.createIcons();
+            // لا حاجة لـ lucide.createIcons() هنا لأننا لا نستخدم أي أيقونات داخل البطاقة
         }
 
         // ----------------------------------------------------------------------
