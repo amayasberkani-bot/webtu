@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -43,6 +43,12 @@
             /* إضافة انتقال سلس للخلفية والتظليل */
             transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
+        
+        /* التعديل هنا: لجعله مربعاً بزوايا غير حادة (xl) بدلاً من دائري (full) - التعديل السابق */
+        .nav-item .bg-default {
+            padding: 0.75rem; /* p-3 */
+            border-radius: 9999px; /* rounded-full (دائري) */
+        }
 
         /* حالة النشاط (Active State) */
         .nav-item.active .icon {
@@ -50,10 +56,40 @@
         }
         .nav-item.active .bg-active {
             background-color: var(--tile-bg); /* استخدام لون أزرار الشاشة الرئيسية للأيقونة النشطة */
-            /* إضافة ظل خفيف للزر النشط */
-            box-shadow: 0 4px 10px rgba(0, 163, 129, 0.4); 
-            /* عند النشاط، نجعل الأيقونة أكبر قليلاً لإبرازها */
-            transform: scale(1.05);
+            /* تطبيق التنسيق المربع الجديد */
+            border-radius: 0.75rem; /* rounded-xl (لتكبير الزوايا قليلاً) */
+            padding: 1rem; /* p-4 (لتكبير المنطقة الخضراء) */
+            box-shadow: none;
+            transform: none; 
+        }
+
+        /* تعديل تصميم أزرار القائمة السفلية ليتوافق مع الشكل الجديد */
+        .nav-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 0.5rem; /* p-2 */
+            width: 100%; /* لضمان توزيع متساوي */
+        }
+        /* إخفاء النص تحت الأيقونة النشطة */
+        .nav-item.active .nav-text {
+            display: none;
+        }
+        /* تعديل ترتيب العناصر ليتطابق مع الصورة (الأيقونة أولاً ثم النص، ولكن النص مخفي في حالة النشاط) */
+        .nav-item {
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            min-height: 4.5rem; /* ارتفاع تقريبي لشريط التنقل */
+            padding: 0 0.5rem;
+            flex-grow: 1;
+        }
+        /* تعديل شريط التنقل ليعمل بشكل صحيح مع التوسيع الأفقي للعنصر النشط */
+        .nav-bar-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
         }
         
         /* لضمان أن التطبيق يملأ الشاشة بالكامل على الجوالات الحديثة (بما في ذلك المساحات الآمنة) */
@@ -62,24 +98,65 @@
             height: 100svh; /* استخدام svh للأجهزة الحديثة للارتفاع الآمن */
         }
 
-        /* تنسيق بطاقة الهوية (ID Card) */
+        /* ---------------------------------------------------------------------- */
+        /* أنماط البطاقة والتقليب (Card & Flip Animation Styles) */
+        /* ---------------------------------------------------------------------- */
+
+        /* حاوية البطاقة الأم (يجب أن تكون ثلاثية الأبعاد) */
+        #cardDisplayArea {
+            /* المنظور (Perspective) لإنشاء العمق */
+            perspective: 1000px;
+        }
+
+        /* حاوية البطاقة الداخلية التي سيتم تقليبها */
+        .id-card-flipper {
+            position: relative;
+            /* منع العناصر الداخلية من الانهيار */
+            width: 100%; 
+            height: 100%;
+            /* حركة سلسة للتقليب على محور Y */
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            /* يجب أن يبدأ في الوضع العادي (بدون تدوير) */
+            transform: rotateY(0deg); 
+        }
+
+        /* حالة التقليب (عندما يتم تغيير البطاقة) */
+        .id-card-flipper.is-flipping {
+            /* تدوير 180 درجة حول محور Y */
+            transform: rotateY(180deg);
+        }
+
+        /* وجه البطاقة (الأمامي والخلفي) */
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* إخفاء الوجه الخلفي (Backface) أثناء الدوران */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; /* للمتصفحات القديمة */
+            /* تطبيق التنسيق العام للبطاقة */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 1rem; /* rounded-2xl */
+            /* التأكد من أن الصور تغطي البطاقة بالكامل */
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        /* الوجه الخلفي (بطاقة الإقامة) - يبدأ بـ 180 درجة حتى يظهر عندما يكون Flipper عند 180 درجة */
+        .card-face.back {
+            /* تدوير الوجه الخلفي مسبقًا ليكون جاهزًا للظهور */
+            transform: rotateY(180deg);
+        }
+        
+        /* تنسيق الأبعاد الأساسي للبطاقة */
         .id-card-container {
             /* تعديل الأبعاد لتكون عمودية (طولية) بنسبة 1:1.58 */
             width: 85vw; /* عرض أقل بقليل ليناسب التصميم الطولي */
             max-width: 300px; /* أقصى عرض معقول */
-            /* الحفاظ على نسبة العرض/الارتفاع العمودية (الطول > العرض) */
             aspect-ratio: 1 / 1.58; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            
-            /* ألوان الخلفية الافتراضية */
-            background-color: #ffffff;
-            /* إضافة خاصية للحركة السلسة عند تغيير الخلفية */
-            transition: background-image 0.5s ease-in-out, background-color 0.5s ease-in-out;
-            
-            /* مهم: لضمان أن الصورة الخلفية تملأ الحاوية بالكامل */
-            background-size: cover;
-            background-position: center; 
-            
             /* منع تحديد النص داخل البطاقة */
             user-select: none;
             -webkit-user-select: none;
@@ -93,6 +170,7 @@
             /* لون تعتيم خفيف لضمان وضوح النص فوق الصورة */
             background-color: rgba(255, 255, 255, 0.6); 
             z-index: 5; /* يكون أعلى من الخلفية، وأسفل محتوى البطاقة */
+            border-radius: 1rem;
         }
         
         /* تنسيق الأزرار الصغيرة للإخفاء/الإظهار */
@@ -103,6 +181,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        
+        /* خطوط البيانات داخل البطاقة */
+        .card-data-line {
+            line-height: 1.1; /* تقليل التباعد بين الأسطر */
         }
 
     </style>
@@ -126,29 +209,35 @@
 
         <!-- قائمة التنقل السفلية (Bottom Navigation Bar) -->
         <nav class="bg-[--nav-bg] p-2">
-            <div class="flex justify-around">
+            <div class="nav-bar-container">
                 <!-- زر الرئيسية -->
-                <button class="nav-item flex flex-col items-center p-2 text-gray-400 active" onclick="navigate('home', this)">
-                    <div class="p-3 rounded-full transition-all duration-300 bg-active">
+                <button class="nav-item flex items-center p-0 text-gray-400 active" onclick="navigate('home', this)">
+                    <!-- الحاوية الخضراء أو الرمادية -->
+                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
                         <i data-lucide="home" class="icon w-6 h-6"></i>
                     </div>
-                    <span class="text-xs mt-1">الرئيسية</span>
+                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
+                    <span class="nav-text text-xs mt-1">الرئيسية</span>
                 </button>
 
                 <!-- زر البطاقات -->
-                <button class="nav-item flex flex-col items-center p-2 text-gray-400" onclick="navigate('cards', this)">
-                    <div class="p-3 rounded-full transition-all duration-300 bg-active">
+                <button class="nav-item flex items-center p-0 text-gray-400" onclick="navigate('cards', this)">
+                    <!-- الحاوية الخضراء أو الرمادية -->
+                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
                         <i data-lucide="credit-card" class="icon w-6 h-6"></i>
                     </div>
-                    <span class="text-xs mt-1">البطاقات</span>
+                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
+                    <span class="nav-text text-xs mt-1">البطاقات</span>
                 </button>
 
                 <!-- زر الملف الشخصي -->
-                <button class="nav-item flex flex-col items-center p-2 text-gray-400" onclick="navigate('profile', this)">
-                    <div class="p-3 rounded-full transition-all duration-300 bg-active">
+                <button class="nav-item flex items-center p-0 text-gray-400" onclick="navigate('profile', this)">
+                    <!-- الحاوية الخضراء أو الرمادية -->
+                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
                         <i data-lucide="user" class="icon w-6 h-6"></i>
                     </div>
-                    <span class="text-xs mt-1">الملف الشخصي</span>
+                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
+                    <span class="nav-text text-xs mt-1">الملف الشخصي</span>
                 </button>
             </div>
         </nav>
@@ -182,9 +271,9 @@
             birthPlace: "بجاية",
             major: "علوم الطبيعة والحياة",
             year: "2025/2026",
-            matricule: "UN0601202525353025418",
             residenceInfo: "برشيش 3 - القسم: بجاية - الجناح والغرفة: 4-203", // بيانات بطاقة الإقامة
-            idCardImage: "https://placehold.co/40x40/00A381/ffffff?text=U", // رابط الصورة الشخصية الافتراضي
+            matricule: "UN0601202525353025418",
+            idCardImage: "https://placehold.co/100x120/00A381/ffffff?text=صورة+شخصية", // رابط الصورة الشخصية الافتراضي
             studentCardBackground: null, 
             residenceCardBackground: null, 
             currentCardType: 'student', // الافتراضي هو بطاقة الطالب
@@ -222,9 +311,9 @@
                 'note_student_bg': 'ستظهر كخلفية لبطاقة الطالب.',
                 'change_residence_bg': 'تغيير خلفية بطاقة الإقامة:',
                 'note_residence_bg': 'ستظهر كخلفية لبطاقة الإقامة.',
-                'customization_title': 'أدوات التخصيص',
-                'show_inputs': 'إظهار حقول الصور',
-                'hide_inputs': 'إخفاء حقول الصور',
+                'customization_title': 'أدوات التخصيص (Customize Tools)',
+                'show_inputs': 'إظهار حقول التخصيص',
+                'hide_inputs': 'إخفاء حقول التخصيص',
                 'success': 'نجاح',
                 'save_success_message': 'تم حفظ معلومات الملف الشخصي بنجاح.',
                 
@@ -242,6 +331,10 @@
                 'tile_enrollments': 'التسجيلات',
                 'tile_restauration': 'الإطعام',
                 'tile_other_services': 'خدمات أخرى',
+                
+                // نصوص البطاقات
+                'card_student_id': 'بطاقة الطالب',
+                'card_residence_id': 'بطاقة الإقامة الجامعية',
             },
             'fr-DZ': {
                 'portal_title': 'Portail Étudiant',
@@ -271,9 +364,9 @@
                 'note_student_bg': 'Apparaîtra comme fond pour la carte étudiant.',
                 'change_residence_bg': 'Changer le fond de la carte résidence:',
                 'note_residence_bg': 'Apparaîtra comme fond pour la carte résidence.',
-                'customization_title': 'Outils de personnalisation',
-                'show_inputs': 'Afficher les champs image',
-                'hide_inputs': 'Masquer les champs image',
+                'customization_title': 'Outils de personnalisation (Customize Tools)',
+                'show_inputs': 'Afficher les champs customisation',
+                'hide_inputs': 'Masquer les champs customisation',
                 'success': 'Succès',
                 'save_success_message': 'Les informations du profil ont été enregistrées avec succès.',
 
@@ -291,6 +384,10 @@
                 'tile_enrollments': 'Enrollments',
                 'tile_restauration': 'Restoration',
                 'tile_other_services': 'Other services',
+                
+                // نصوص البطاقات
+                'card_student_id': 'Carte Étudiant',
+                'card_residence_id': 'Carte de Résidence Universitaire',
             }
         };
 
@@ -475,7 +572,7 @@
         }
         
         // ----------------------------------------------------------------------
-        // منطق التمرير (Swipe Logic)
+        // منطق التمرير والتقليب (Swipe & Flip Logic)
         // ----------------------------------------------------------------------
         
         /**
@@ -487,14 +584,14 @@
             const isRTL = htmlElement.getAttribute('dir') === 'rtl';
 
             if (isRTL) {
-                // RTL (العربية): السحب لليسار هو التالي، لليمين هو السابق
+                // RTL (العربية): السحب لليسار هو التالي (من الطالب إلى الإقامة)، لليمين هو السابق
                 if (userData.currentCardType === 'student' && direction === 'left') {
                     newCardType = 'residence';
                 } else if (userData.currentCardType === 'residence' && direction === 'right') {
                     newCardType = 'student';
                 }
             } else {
-                // LTR (الفرنسية): السحب لليمين هو التالي، لليسار هو السابق (عكس RTL)
+                // LTR (الفرنسية): السحب لليمين هو التالي، لليسار هو السابق
                 if (userData.currentCardType === 'student' && direction === 'right') {
                     newCardType = 'residence';
                 } else if (userData.currentCardType === 'residence' && direction === 'left') {
@@ -556,11 +653,45 @@
             navItems.forEach(item => {
                 // إزالة فئة 'active' من الجميع
                 item.classList.remove('active');
+                
+                // إعادة الأيقونات إلى وضعها الافتراضي
+                const iconContainer = item.querySelector('.bg-active');
+                const textSpan = item.querySelector('.nav-text');
+                
+                if (iconContainer) {
+                    // التنسيق الافتراضي: دائري و p-3
+                    iconContainer.classList.remove('rounded-xl', 'p-4');
+                    iconContainer.classList.add('rounded-full', 'p-3');
+                }
+                if (textSpan) {
+                     textSpan.style.display = 'block'; // إظهار النص
+                }
+
+                const icon = item.querySelector('.icon');
+                if (icon) {
+                    icon.style.color = '#a0aec0'; // لون الرمادي الافتراضي
+                }
             });
             
             // تفعيل الزر الحالي
             if (clickedButton) {
                 clickedButton.classList.add('active');
+                
+                // تطبيق التنسيق النشط (مربع وزوايا كبيرة و p-4)
+                const activeIconContainer = clickedButton.querySelector('.bg-active');
+                const activeTextSpan = clickedButton.querySelector('.nav-text');
+                const activeIcon = clickedButton.querySelector('.icon');
+                
+                if (activeIconContainer) {
+                    activeIconContainer.classList.remove('rounded-full', 'p-3');
+                    activeIconContainer.classList.add('rounded-xl', 'p-4');
+                }
+                if (activeTextSpan) {
+                     activeTextSpan.style.display = 'none'; // إخفاء النص
+                }
+                if (activeIcon) {
+                    activeIcon.style.color = '#ffffff'; // لون الأيقونة النشطة أبيض
+                }
             }
 
 
@@ -587,9 +718,9 @@
         
         // دالة مساعدة لتحديث نصوص شريط التنقل
         function updateNavText() {
-             document.querySelector('button[onclick*="\'home\'"] span').textContent = t('nav_home');
-             document.querySelector('button[onclick*="\'cards\'"] span').textContent = t('nav_cards');
-             document.querySelector('button[onclick*="\'profile\'"] span').textContent = t('nav_profile');
+             document.querySelector('button[onclick*="\'home\'"] .nav-text').textContent = t('nav_home');
+             document.querySelector('button[onclick*="\'cards\'"] .nav-text').textContent = t('nav_cards');
+             document.querySelector('button[onclick*="\'profile\'"] .nav-text').textContent = t('nav_profile');
         }
 
         /**
@@ -621,7 +752,7 @@
 
 
         // ----------------------------------------------------------------------
-        // 1. شاشة الرئيسية (Home Screen) - تم تحديثها لتطابق الصورة
+        // 1. شاشة الرئيسية (Home Screen)
         // ----------------------------------------------------------------------
         function renderHome() {
             // قائمة الأزرار المطابقة للصورة المرفقة
@@ -636,7 +767,7 @@
                 { titleKey: 'tile_academic_transcripts', icon: 'folder-open' },
                 { titleKey: 'tile_debts', icon: 'calculator' },
                 { titleKey: 'tile_academic_vacation', icon: 'archive' },
-                { titleKey: 'tile_enrollments', icon: 'book-open' },
+                { tileKey: 'tile_enrollments', icon: 'book-open' },
                 { titleKey: 'tile_restauration', icon: 'utensils' },
                 { titleKey: 'tile_other_services', icon: 'grid' },
             ];
@@ -698,79 +829,31 @@
         }
 
         // ----------------------------------------------------------------------
-        // 2. شاشة البطاقات (Cards Screen) - تم حذف أزرار التبديل
+        // 2. شاشة البطاقات (Cards Screen)
         // ----------------------------------------------------------------------
         function renderCards() {
-            const isRTL = userData.currentLanguage === 'ar-DZ';
-            
             // إضافة فئات التوسيط للبطاقة وجعلها تبدأ من الأعلى
             contentArea.classList.add('flex', 'flex-col', 'items-center', 'justify-start');
             contentArea.classList.remove('p-4', 'space-y-4'); 
 
-            const controlsHtml = `
+            const cardsHtml = `
                 <div class="w-full max-w-sm p-4 space-y-4">
                     
-                    <!-- حاوية عرض البطاقة - الآن هي أول عنصر تحت العنوان -->
-                    <div id="cardDisplayArea" class="w-full flex justify-center py-4 transition-opacity duration-300 opacity-0">
+                    <!-- حاوية عرض البطاقة -->
+                    <div id="cardDisplayArea" class="w-full flex justify-center py-4 transition-opacity duration-300">
                         <!-- سيتم تحميل البطاقة هنا بواسطة displayCard() -->
                     </div>
 
-                    <!-- حاوية أدوات التخصيص (مرئية دائماً) -->
-                    <div id="customizationControls" class="space-y-4">
+                    <div class="p-4 text-center text-gray-500 text-sm">
+                        <!-- تذكير للمستخدم بكيفية التبديل -->
+                        <i data-lucide="chevrons-left-right" class="w-5 h-5 inline-block mx-2"></i>
+                        <span>${userData.currentLanguage === 'ar-DZ' ? 'اسحب البطاقة لليمين أو اليسار للتبديل' : 'Swipe card left or right to switch'}</span>
+                    </div>
 
-                         <!-- عنوان قسم الصور مع أزرار الإخفاء/الإظهار -->
-                        <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
-                            <h3 class="text-lg font-bold text-gray-800">${t('customization_title')}</h3>
-                            <!-- الأزرار الصغيرة للإخفاء والإظهار -->
-                            <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
-                                <!-- زر الإظهار -->
-                                <button id="showBtn" onclick="toggleImageInputs(true)" class="toggle-btn bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
-                                    <i data-lucide="eye" class="w-5 h-5"></i>
-                                </button>
-                                <!-- زر الإخفاء -->
-                                <button id="hideBtn" onclick="toggleImageInputs(false)" class="toggle-btn bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
-                                    <i data-lucide="eye-off" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- حاوية حقول إدخال الصور التي سيتم إخفاؤها/إظهارها -->
-                        <div id="imageInputsContainer" class="space-y-4"> 
-                            <!-- خاصية رفع الصورة الشخصية (مشتركة) -->
-                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                                <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
-                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
-                                <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
-                                <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
-                            </div>
-
-                            <!-- 1. خلفية بطاقة الطالب -->
-                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                                <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
-                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
-                                <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                                <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
-                                <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
-                                    ${t('remove_background')}
-                                </button>
-                            </div>
-
-                            <!-- 2. خلفية بطاقة الإقامة -->
-                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                                <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
-                                <!-- تم تصغير حجم الزر هنا: file:py-1.5, file:px-3, file:text-xs -->
-                                <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                                <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
-                                <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
-                                    ${t('remove_background')}
-                                </button>
-                            </div>
-                        </div> <!-- نهاية imageInputsContainer -->
-                    </div> <!-- نهاية customizationControls -->
                 </div>
             `;
 
-            contentArea.innerHTML = controlsHtml;
+            contentArea.innerHTML = cardsHtml;
 
             // عرض البطاقة الافتراضية (بطاقة الطالب)
             displayCard('student', true);
@@ -780,36 +863,6 @@
             if (cardDisplayArea) {
                 setupSwipeDetection(cardDisplayArea);
             }
-
-            // **تطبيق حالة الإظهار/الإخفاء المحفوظة**
-            toggleImageInputs(userData.imageInputsVisible);
-
-            // منطق تحميل الصورة الشخصية (مشتركة)
-            document.getElementById('imageUploader').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        userData.idCardImage = e.target.result;
-                        // تحديث الصورة في الهيدر والبطاقة (التي ما زالت تظهر في الهيدر)
-                        const profileImageHeader = document.getElementById('profileImageHeader');
-                        if(profileImageHeader) profileImageHeader.src = userData.idCardImage;
-                        // إعادة عرض البطاقة لتحديث الصورة
-                        displayCard(userData.currentCardType);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // منطق تحميل خلفية بطاقة الطالب
-            document.getElementById('studentBackgroundUploader').addEventListener('change', function(event) {
-                handleBackgroundUpload(event, 'student');
-            });
-
-            // منطق تحميل خلفية بطاقة الإقامة
-            document.getElementById('residenceBackgroundUploader').addEventListener('change', function(event) {
-                handleBackgroundUpload(event, 'residence');
-            });
             
             // يجب إعادة إنشاء الأيقونات للتأكد من ظهورها
             lucide.createIcons();
@@ -831,7 +884,11 @@
                         userData.residenceCardBackground = e.target.result;
                     }
                     // إعادة عرض البطاقة لتطبيق الخلفية الجديدة على البطاقة الحالية
-                    displayCard(userData.currentCardType);
+                    const activeNavButton = document.querySelector('.nav-item.active');
+                    if (activeNavButton.getAttribute('onclick').includes('cards')) {
+                         displayCard(userData.currentCardType);
+                    }
+                   
                 };
                 reader.readAsDataURL(file);
             }
@@ -848,7 +905,8 @@
                 userData.residenceCardBackground = null;
             }
             // تحديث العرض إذا كانت البطاقة التي تم إزالة خلفيتها هي البطاقة المعروضة حاليًا
-            if (userData.currentCardType === type) {
+            const activeNavButton = document.querySelector('.nav-item.active');
+            if (activeNavButton.getAttribute('onclick').includes('cards') && userData.currentCardType === type) {
                 displayCard(userData.currentCardType);
             }
         }
@@ -862,64 +920,90 @@
             const cardDisplayArea = document.getElementById('cardDisplayArea');
             if (!cardDisplayArea) return;
 
-            // 1. تحديث حالة نوع البطاقة الحالية
-            userData.currentCardType = type;
-
-            // 2. تطبيق تأثير التلاشي للإخفاء
-            if (!skipAnimation) {
-                cardDisplayArea.classList.remove('opacity-100');
-                cardDisplayArea.classList.add('opacity-0');
-            } else {
-                // إذا كان أول تحميل، لا تنتظر
-                updateCardContent(type, cardDisplayArea);
-                cardDisplayArea.classList.add('opacity-100');
-                return;
+            // تحديد حاوية التقليب
+            let flipper = document.getElementById('idCardFlipper');
+            
+            // 1. إذا كانت هذه هي المرة الأولى، نقوم بإنشاء الهيكل الأساسي للتقليب
+            if (!flipper) {
+                cardDisplayArea.innerHTML = `
+                    <div class="id-card-container">
+                        <div id="idCardFlipper" class="id-card-flipper">
+                            <!-- البطاقة الأمامية (طالب) -->
+                            <div id="studentCard" class="card-face front bg-white rounded-2xl"></div>
+                            <!-- البطاقة الخلفية (إقامة) -->
+                            <div id="residenceCard" class="card-face back bg-white rounded-2xl"></div>
+                        </div>
+                    </div>
+                `;
+                flipper = document.getElementById('idCardFlipper');
             }
-
-            // 3. الانتظار حتى اكتمال التلاشي (300ms) ثم تحديث المحتوى
+            
+            // 2. تحديث المحتوى الداخلي للبطاقتين (لتجنب الوميض)
+            updateCardContent('student', document.getElementById('studentCard'));
+            updateCardContent('residence', document.getElementById('residenceCard'));
+            
+            // 3. تطبيق الحركة
+            if (!skipAnimation && type !== userData.currentCardType) {
+                // إذا كانت البطاقة المطلوبة هي الإقامة، نقوم بالتقليب إلى 180 (إظهار الظهر)
+                if (type === 'residence') {
+                    flipper.classList.add('is-flipping');
+                } else {
+                    // إذا كانت البطاقة المطلوبة هي الطالب، نقوم بالتقليب إلى 0 (إظهار الوجه)
+                    flipper.classList.remove('is-flipping');
+                }
+            } else if (skipAnimation) {
+                 // إذا كان تحميل أولي، نضمن أن الحالة صحيحة بدون حركة
+                 if (type === 'residence') {
+                    flipper.classList.add('is-flipping');
+                } else {
+                    flipper.classList.remove('is-flipping');
+                }
+            }
+            
+            // 4. تحديث حالة نوع البطاقة الحالية بعد اكتمال الحركة
             setTimeout(() => {
-                updateCardContent(type, cardDisplayArea);
-                
-                // 4. تطبيق تأثير الظهور
-                cardDisplayArea.classList.remove('opacity-0');
-                cardDisplayArea.classList.add('opacity-100');
-            }, 300);
+                 userData.currentCardType = type;
+            }, skipAnimation ? 0 : 600); // 600ms هي مدة الحركة
+
+            lucide.createIcons(); // لإنشاء أي أيقونات جديدة داخل البطاقة
         }
 
         /**
-         * دالة مساعدة لتوليد محتوى البطاقة (فارغة تماماً الآن)
+         * دالة مساعدة لتوليد محتوى بطاقة الطالب أو الإقامة (تم جعلها فارغة بناءً على طلب المستخدم)
          */
-        function updateCardContent(type, cardDisplayArea) {
+        function updateCardContent(type, cardElement) {
             
-            // تحديد الخلفية الصحيحة بناءً على نوع البطاقة المعروضة
-            const cardBackground = (type === 'student') 
+            const isStudent = type === 'student';
+            const cardBackground = isStudent 
                 ? userData.studentCardBackground 
                 : userData.residenceCardBackground;
+            
+            // تحديد لون الخلفية الافتراضي إذا لم تكن هناك صورة
+            const defaultBgColor = isStudent ? '#ffffff' : '#fffbe7'; // أبيض للطالب، وأصفر فاتح للإقامة
 
             // تطبيق الخلفية المخصصة أو تركها فارغة
-            const backgroundStyle = cardBackground 
-                ? `style="background-image: url('${cardBackground}'); background-size: cover; background-position: center;"` 
-                : '';
+            if (cardBackground) {
+                cardElement.style.backgroundImage = `url('${cardBackground}')`;
+                cardElement.style.backgroundSize = 'cover';
+                cardElement.style.backgroundPosition = 'center';
+                cardElement.style.backgroundColor = 'transparent';
+            } else {
+                cardElement.style.backgroundImage = 'none';
+                cardElement.style.backgroundColor = defaultBgColor;
+            }
             
-            // **هذا هو المحتوى: البطاقة فارغة تماماً بناءً على طلبك**
-            const cardHtml = `
-                <div id="idCard" class="id-card-container bg-white rounded-2xl p-3 shadow-2xl relative overflow-hidden" ${backgroundStyle}>
-                    
-                    <!-- طبقة التعتيم (Overlay) - تستخدم فقط إذا لم يكن هناك صورة خلفية مخصصة -->
-                    ${cardBackground ? '' : '<div class="card-overlay"></div>'}
-                    
-                    <!-- تذييل مزخرف (الخلفية منقطة) - يظهر فقط في حال عدم وجود صورة خلفية مخصصة -->
-                    ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
-                    
-                    <!-- المحتوى الداخلي الفارغ - لا يوجد شيء هنا -->
-                    <div class="relative z-20 w-full h-full flex items-center justify-center">
-                         <!-- منطقة فارغة تماماً -->
-                    </div>
+            // المحتوى الفارغ تماماً (تمت إزالة كل النصوص والأيقونات)
+            const content = `
+                <div class="relative z-20 w-full h-full">
+                    <!-- تم إزالة أي محتوى مرئي هنا لترك البطاقة فارغة تماماً -->
                 </div>
+                <!-- طبقة التعتيم تبقى موجودة إذا كانت هناك خلفية مخصصة لضمان رؤية الحواف -->
+                ${cardBackground ? '<div class="card-overlay opacity-20"></div>' : ''}
+                <!-- نمط النقاط الخفيف يبقى للخلفية البيضاء الافتراضية لتبدو كبطاقة ورقية -->
+                ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
             `;
 
-            cardDisplayArea.innerHTML = cardHtml;
-            // لا حاجة لـ lucide.createIcons() هنا لأننا لا نستخدم أي أيقونات داخل البطاقة
+            cardElement.innerHTML = content;
         }
 
         // ----------------------------------------------------------------------
@@ -967,7 +1051,7 @@
                 <!-- بطاقة تاريخ الميلاد -->
                 <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md mt-4">
                     <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="${directionClass} flex-grow">
+                    <div class="directionClass} flex-grow">
                         <p class="text-sm font-medium text-gray-500">${t('birth_date_label')}</p>
                         <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthDate}</p>
                     </div>
@@ -985,6 +1069,59 @@
                     </button>
                 </div>
                 
+                <!-- ********************************************** -->
+                <!-- حاوية أدوات التخصيص (تم نقلها من شاشة البطاقات) -->
+                <!-- ********************************************** -->
+                <div id="customizationControls" class="space-y-4 mt-6">
+
+                     <!-- عنوان قسم الصور مع أزرار الإخفاء/الإظهار -->
+                    <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
+                        <h3 class="text-lg font-bold text-gray-800">${t('customization_title')}</h3>
+                        <!-- الأزرار الصغيرة للإخفاء والإظهار -->
+                        <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
+                            <!-- زر الإظهار -->
+                            <button id="showBtn" onclick="toggleImageInputs(true)" class="toggle-btn ${userData.imageInputsVisible ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                            <!-- زر الإخفاء -->
+                            <button id="hideBtn" onclick="toggleImageInputs(false)" class="toggle-btn ${!userData.imageInputsVisible ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
+                                <i data-lucide="eye-off" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- حاوية حقول إدخال الصور التي سيتم إخفاؤها/إظهارها -->
+                    <div id="imageInputsContainer" class="space-y-4" style="display: ${userData.imageInputsVisible ? 'block' : 'none'};"> 
+                        <!-- خاصية رفع الصورة الشخصية (مشتركة) -->
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                            <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
+                            <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+                            <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
+                        </div>
+
+                        <!-- 1. خلفية بطاقة الطالب -->
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                            <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
+                            <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                            <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
+                            <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
+                                ${t('remove_background')}
+                            </button>
+                        </div>
+
+                        <!-- 2. خلفية بطاقة الإقامة -->
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                            <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
+                            <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                            <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
+                            <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
+                                ${t('remove_background')}
+                            </button>
+                        </div>
+                    </div> <!-- نهاية imageInputsContainer -->
+                </div> <!-- نهاية customizationControls -->
+                <!-- ********************************************** -->
+                
                 <!-- زر تسجيل الخروج -->
                 <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
                     ${t('logout_button')}
@@ -994,6 +1131,41 @@
             // إزالة فئات توسيط البطاقة لصفحة الملف الشخصي
             contentArea.classList.remove('flex', 'flex-col', 'items-center', 'justify-center');
             contentArea.classList.add('p-4', 'space-y-4');
+            
+            // **ربط مستمعات الأحداث لرفع الصور**
+            
+            // منطق تحميل الصورة الشخصية (مشتركة)
+            document.getElementById('imageUploader').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        userData.idCardImage = e.target.result;
+                        // تحديث الصورة في الهيدر والبطاقة (التي ما زالت تظهر في الهيدر)
+                        const profileImageHeader = document.getElementById('profileImageHeader');
+                        if(profileImageHeader) profileImageHeader.src = userData.idCardImage;
+                        // تحديث الصورة في صفحة الملف الشخصي
+                        const profileImageCard = document.getElementById('profileImageCard');
+                        if(profileImageCard) profileImageCard.src = userData.idCardImage;
+                        // إعادة عرض البطاقة لتحديث الصورة إذا كان المستخدم في شاشة البطاقات حالياً
+                        const activeNavButton = document.querySelector('.nav-item.active');
+                        if (activeNavButton.getAttribute('onclick').includes('cards')) {
+                             displayCard(userData.currentCardType);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // منطق تحميل خلفية بطاقة الطالب
+            document.getElementById('studentBackgroundUploader').addEventListener('change', function(event) {
+                handleBackgroundUpload(event, 'student');
+            });
+
+            // منطق تحميل خلفية بطاقة الإقامة
+            document.getElementById('residenceBackgroundUploader').addEventListener('change', function(event) {
+                handleBackgroundUpload(event, 'residence');
+            });
         }
 
     </script>
