@@ -147,8 +147,21 @@
 
     <!-- جلب الأيقونات بعد تحميل DOM ومنطق التطبيق -->
     <script>
+        // متغير عالمي لتخزين حدث التثبيت المؤجل (PWA)
+        let deferredPrompt = null; 
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            
+            // **منطق PWA: اعتراض حدث التثبيت**
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // منع شريط المعلومات المصغر من الظهور تلقائيًا
+                e.preventDefault();
+                // تخزين الحدث ليتم تشغيله يدوياً عند النقر على الزر
+                deferredPrompt = e;
+                console.log("PWA install prompt deferred.");
+            });
+
             // عند التحميل، نمرر الزر الأول كمرجع (لأنه النشط افتراضياً)
             const initialButton = document.querySelector('.nav-item.active');
             navigate('home', initialButton, true); 
@@ -236,14 +249,37 @@
         }
 
         /**
-         * دالة لعرض رسالة توضيحية حول تثبيت التطبيق (PWA)
+         * دالة لتشغيل المطالبة بالتثبيت آلياً أو عرض رسالة توجيهية كـ fallback
          */
         function showInstallPrompt() {
-            const message = "لتثبيت هذا الموقع كتطبيق (PWA) على هاتفك:\n\n" +
-                            "1. انقر على قائمة المتصفح (عادةً الثلاث نقاط). \n" +
-                            "2. ابحث عن خيار 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.";
-            
-            displayCustomMessage('تثبيت التطبيق', message, 'download');
+            if (deferredPrompt) {
+                // تشغيل المطالبة التلقائية المخزنة
+                deferredPrompt.prompt();
+                
+                // مراقبة اختيار المستخدم
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the PWA install prompt');
+                        // يمكن عرض رسالة نجاح هنا
+                        displayCustomMessage('تم قبول التثبيت', 'تم قبول طلب تثبيت التطبيق بنجاح.', 'check-circle');
+                    } else {
+                        console.log('User dismissed the PWA install prompt');
+                        // يمكن عرض رسالة توجيهية هنا
+                    }
+                    deferredPrompt = null; // إفراغ المطالبة المخزنة
+                }).catch(error => {
+                    console.error('Error during prompt user choice:', error);
+                });
+            } else {
+                // الفشل في التقاط حدث beforeinstallprompt
+                // عرض رسالة التوجيه اليدوية كـ fallback
+                const message = "تعذر تشغيل نافذة التثبيت التلقائية.\n\n" +
+                                "لتثبيت الموقع كتطبيق (PWA) على هاتفك يرجى اتباع الخطوات:\n" +
+                                "1. انقر على قائمة المتصفح (عادةً الثلاث نقاط). \n" +
+                                "2. ابحث عن خيار 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.";
+                
+                displayCustomMessage('تثبيت التطبيق يدوياً', message, 'alert-triangle');
+            }
         }
 
 
