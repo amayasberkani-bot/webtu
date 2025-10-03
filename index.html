@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Mobile UI</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font: Inter is the default, but we'll prioritize system fonts for better Arabic rendering -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap');
+        :root {
+            --color-primary-green: #00A37A;
+            --color-dark-slate: #383E58;
+            --color-logout-red: #E85A5A;
+            --color-light-bg: #F0F0F0;
+        }
+
+        body {
+            background-color: var(--color-light-bg);
+            font-family: 'Almarai', 'Inter', sans-serif;
+        }
+
+        /* Utility class for the primary green color, matching the screenshots */
+        .bg-primary-green { background-color: var(--color-primary-green); }
+        .text-primary-green { color: var(--color-primary-green); }
+        .bg-dark-slate { background-color: var(--color-dark-slate); }
+        .bg-logout-red { background-color: var(--color-logout-red); }
+
+        /* Ensure the app container simulates a mobile screen */
+        #app-container {
+            max-width: 420px; /* iPhone 12 Pro Max width for accurate representation */
+            min-height: 100vh;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-color: white; /* Inner app background */
+        }
+        
+        /* Custom styles for the intricate ID card design */
+        .id-card-container {
+            perspective: 1000px;
+            height: 400px; /* Fixed height for the flip effect */
+            margin-top: 1rem;
+        }
+
+        .id-card {
+            background: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 1.5rem; /* rounded-3xl */
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        
+        /* Card Flip State */
+        .id-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card-front {
+            z-index: 2;
+            transform: rotateY(0deg);
+        }
+
+        .card-back {
+            background-color: #f7f7f7; /* Light background for the back */
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        /* Wavy line effect on the ID card front */
+        .card-front::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(90deg, transparent 0 1px, var(--color-primary-green) 1px 3px);
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        /* Green vertical wavy border on the right (Front face only) */
+        .card-front::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0 C 8 25, 0 75, 8 100' stroke='%2300A37A' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+            background-repeat: repeat-y;
+            background-size: 8px 20px;
+        }
+        
+        /* Specific card details alignment (Arabic text on the right) */
+        .card-detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+        }
+
+    </style>
+</head>
+<body class="bg-light-bg">
+
+    <div id="app-container" class="flex flex-col">
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-grow p-4 pb-24 overflow-y-auto">
+            <!-- Views will be rendered here by JavaScript -->
+        </main>
+
+        <!-- Bottom Navigation (Footer) -->
+        <nav id="bottom-nav" class="bg-dark-slate fixed bottom-0 left-0 right-0 z-50 h-20 shadow-2xl" style="max-width: 420px; margin: 0 auto;">
+            <div class="flex h-full">
+                <!-- Home Button -->
+                <button data-view="home" class="nav-item flex-1 flex flex-col items-center justify-center text-white/70 transition-colors" onclick="showView('home')">
+                    <i data-lucide="home" class="w-6 h-6"></i>
+                    <span class="text-xs mt-1">الرئيسية</span>
+                </button>
+                <!-- Cards Button -->
+                <button data-view="cards" class="nav-item flex-1 flex flex-col items-center justify-center text-white/70 transition-colors" onclick="showView('cards')">
+                    <i data-lucide="credit-card" class="w-6 h-6"></i>
+                    <span class="text-xs mt-1">البطاقات</span>
+                </button>
+                <!-- Profile Button -->
+                <button data-view="profile" class="nav-item flex-1 flex flex-col items-center justify-center text-white/70 transition-colors" onclick="showView('profile')">
+                    <i data-lucide="user" class="w-6 h-6"></i>
+                    <span class="text-xs mt-1">الملف الشخصي</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // --- Data Definitions ---
+        const USER_DATA = {
+            name_en: "BERKANI AMAYAS",
+            name_ar: "بركاني أمياس",
+            surname_ar: "بركاني",
+            firstname_ar: "أمياس",
+            university_en: "université de béjaia",
+            university_ar: "جامعة بجاية",
+            dob: "2005-12-04",
+            pob_ar: "بجاية",
+            major_ar: "علوم الطبيعة والحياة",
+            academic_year: "2025/2026",
+            id_student: "UN0601202525353025418",
+            id_residence: "4-203",
+            card_residence_details: "يستفيد هذا الطالب من خدمات النقل",
+            residence_building: "بريشاش 3",
+            residence_room: "القمر",
+        };
+
+        const HOME_SERVICES = [
+            { en: "Discharge", ar: "إبراء الذمة", icon: "file-text" },
+            { en: "Timetable", ar: "جدول الأعمال", icon: "calendar" },
+            { en: "Group and Section", ar: "المجموعة والقسم", icon: "users" },
+            { en: "Exams Schedule", ar: "جدول الامتحانات", icon: "calendar-check" },
+            { en: "Exam Grades", ar: "نتائج الامتحانات", icon: "graduation-cap" },
+            { en: "Assessment", ar: "التقييم", icon: "pencil" },
+            { en: "Percentage (%)", ar: "النسبة المئوية", icon: "pie-chart" },
+            { en: "Academic Transcripts", ar: "كشوف النقاط", icon: "folder-open" },
+            { en: "Debts", ar: "الديون", icon: "calculator" },
+            { en: "Academic vacation", ar: "عطلة أكاديمية", icon: "sun" },
+            { en: "Enrollments", ar: "التسجيلات", icon: "credit-card" },
+            { en: "Restoration", ar: "الاستعادة", icon: "utensils" },
+            { en: "Other services", ar: "خدمات أخرى", icon: "grid" },
+        ];
+
+        // --- State Management ---
+        let currentView = 'home';
+        let currentCard = 'student'; // 'student' or 'residence'
+        let isCardFlipped = false;
+        let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=Photo";
+        let cardBackImageUrl = "https://placehold.co/380x380/00A37A/ffffff?text=Card+Back+Image";
+
+        // --- Utility Functions ---
+
+        /**
+         * Renders the header for each view.
+         * @param {string} title - The title of the page.
+         * @param {boolean} showProfile - Whether to show the profile picture/icon (only on Home).
+         */
+        function renderHeader(title, showProfile = false) {
+            const profileIcon = showProfile 
+                ? `<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-white/50">
+                    <img id="header-profile-img" src="${profileImageUrl}" alt="Profile" class="w-full h-full object-cover"/>
+                  </div>`
+                : '';
+            
+            return `
+                <header class="flex justify-between items-center h-16 pt-4 px-4">
+                    <h1 class="text-xl font-bold">${title}</h1>
+                    ${profileIcon}
+                </header>
+            `;
+        }
+
+        /**
+         * Updates the active state of the bottom navigation bar.
+         */
+        function updateNav(view) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.view === view) {
+                    item.classList.add('bg-primary-green', 'text-white');
+                    item.classList.remove('text-white/70');
+                } else {
+                    item.classList.remove('bg-primary-green', 'text-white');
+                    item.classList.add('text-white/70');
+                }
+            });
+            // Re-render icons to match the screenshot style (filled for active, outline for inactive)
+            lucide.createIcons();
+        }
+
+        // --- View Renderers ---
+
+        function renderHomeView() {
+            const header = renderHeader("بوابة الطالب", true);
+            
+            const logoBlock = `
+                <div class="bg-primary-green rounded-xl p-4 mb-6 shadow-md mt-2">
+                    <div class="flex justify-center items-center h-20">
+                        <!-- Placeholder for PROGRES Logo - Using a simple text version -->
+                        <div class="text-center">
+                            <h2 class="text-white text-2xl font-bold">PROGRES</h2>
+                            <p class="text-white text-xs mt-1">وزارة التعليم العالي والبحث العلمي</p>
+                            <p class="text-white text-xs">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</p>
+                            <!-- Placeholder for flag -->
+                            <div class="absolute right-4 top-4 w-4 h-3 bg-white rounded-sm border border-white/50"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const serviceGrid = HOME_SERVICES.map(service => `
+                <button class="bg-primary-green rounded-xl p-3 h-20 flex flex-col items-center justify-center text-white shadow-lg text-right" onclick="console.log('${service.en} clicked')">
+                    <i data-lucide="${service.icon}" class="w-6 h-6 mb-1"></i>
+                    <span class="text-sm font-semibold">${service.ar}</span>
+                </button>
+            `).join('');
+
+            const content = `
+                <div class="grid grid-cols-2 gap-3">
+                    ${serviceGrid}
+                </div>
+            `;
+
+            return header + logoBlock + content;
+        }
+        
+        function renderCardFront(type) {
+            const isStudent = type === 'student';
+
+            // Government logo/text block (top left)
+            const governmentBlock = isStudent
+                ? `
+                    <div class="absolute top-6 right-6 flex flex-col items-end text-xs font-semibold leading-tight pr-10">
+                        <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                        <p>وزارة التعليم العالي والبحث العلمي</p>
+                        <p>مديرية الخدمات الجامعية</p>
+                        <p>جامعة بجاية</p>
+                    </div>
+                    <!-- Placeholder for Algerian Government Logo -->
+                    <div class="absolute top-6 left-6 w-8 h-8 rounded-full bg-primary-green opacity-80 border-2 border-white"></div>
+                `
+                : `
+                    <div class="absolute top-6 right-6 flex flex-col items-end text-xs font-semibold leading-tight pr-10">
+                        <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                        <p>وزارة التعليم العالي والبحث العلمي</p>
+                        <p>مديرية الخدمات الجامعية بجاية القصر</p>
+                    </div>
+                    <!-- Placeholder for Algerian Government Logo -->
+                    <div class="absolute top-6 left-6 w-8 h-8 rounded-full bg-primary-green opacity-80 border-2 border-white"></div>
+                `;
+
+            // Card Title (Vertical, centered)
+            const cardTitle = isStudent 
+                ? `<div class="absolute top-24 left-1/2 transform -translate-x-1/2 -rotate-90 origin-top-left text-3xl font-bold text-black/90">بطاقة الطالب</div>`
+                : `<div class="absolute top-24 left-1/2 transform -translate-x-1/2 -rotate-90 origin-top-left text-3xl font-bold text-black/90">بطاقة الإقامة</div>`;
+
+
+            // Profile Image (Top Center)
+            const profileImage = `
+                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200">
+                    <img id="card-profile-img" src="${profileImageUrl}" alt="Student Photo" class="w-full h-full object-cover"/>
+                    <!-- Input field to change profile image -->
+                    <input type="file" id="profileImageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImageChange(event, 'profile')">
+                </div>
+            `;
+
+            // Data Fields
+            const fieldLayout = isStudent ? `
+                <div class="absolute top-36 right-4 text-xs font-semibold text-right">
+                    <p class="mb-2">السنة الجامعية</p>
+                    <p class="text-sm font-bold text-primary-green">${USER_DATA.academic_year}</p>
+                    <p class="mt-4 text-sm font-bold tracking-widest text-primary-green transform rotate-90 origin-top-right whitespace-nowrap absolute right-0 top-1/2">${USER_DATA.id_student}</p>
+                </div>
+
+                <div class="absolute top-12 left-6 text-sm flex flex-col items-start font-semibold" style="direction: ltr; text-align: left;">
+                    <div class="mt-14 space-y-2">
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.firstname_ar}</span>
+                            <span>أمياس</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.surname_ar}</span>
+                            <span>بركالي</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.dob}</span>
+                            <span>تاريخ و مكان الميلاد</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold text-primary-green">${USER_DATA.major_ar}</span>
+                            <span>علوم الطبيعة والحياة</span>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div class="absolute top-36 right-4 text-xs font-semibold text-right">
+                    <p class="text-sm font-bold text-primary-green mt-2">${USER_DATA.card_residence_details}</p>
+                </div>
+
+                <div class="absolute top-12 left-6 text-sm flex flex-col items-start font-semibold" style="direction: ltr; text-align: left;">
+                    <div class="mt-14 space-y-2">
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.firstname_ar}</span>
+                            <span>أمياس</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.surname_ar}</span>
+                            <span>بركالي</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold">${USER_DATA.dob}</span>
+                            <span>تاريخ و مكان الميلاد</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold text-primary-green">${USER_DATA.residence_building} - ${USER_DATA.residence_room}</span>
+                            <span>الإقامة</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Common lower section (Name, QR, etc.)
+            const lowerSection = `
+                <div class="absolute bottom-16 w-full px-6 flex justify-between items-end text-xs font-semibold text-right">
+                    <div class="card-detail-item">
+                        <p class="font-bold text-sm">${USER_DATA.surname_ar}</p>
+                        <p>اللقب</p>
+                    </div>
+                    <div class="card-detail-item">
+                        <p class="font-bold text-sm">${USER_DATA.firstname_ar}</p>
+                        <p>الإسم</p>
+                    </div>
+                    <div class="card-detail-item">
+                        <p class="font-bold text-sm">AMAYAS</p>
+                        <p>Prenom</p>
+                    </div>
+                    <div class="card-detail-item">
+                        <p class="font-bold text-sm">BERKANI</p>
+                        <p>Nom</p>
+                    </div>
+                </div>
+
+                <!-- QR Code Placeholder -->
+                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-28 h-28 p-2 bg-white border border-gray-300">
+                    <img src="https://placehold.co/100x100/1a1a1a/ffffff?text=QR" alt="QR Code" class="w-full h-full object-cover"/>
+                </div>
+            `;
+
+            return `
+                <div class="card-face card-front relative">
+                    ${governmentBlock}
+                    ${cardTitle}
+                    ${profileImage}
+                    ${fieldLayout}
+                    ${lowerSection}
+                </div>
+            `;
+        }
+
+        function renderCardBack(type) {
+            const isStudent = type === 'student';
+            const backTitle = isStudent ? "الوجه الخلفي لبطاقة الطالب" : "الوجه الخلفي لبطاقة الإقامة";
+
+            return `
+                <div class="card-face card-back relative">
+                    <h3 class="text-xl font-bold text-dark-slate mb-4">${backTitle}</h3>
+                    <p class="text-sm text-gray-600 mb-6">انقر لقلب البطاقة مرة أخرى</p>
+
+                    <!-- Back Image Display -->
+                    <div class="w-4/5 max-w-xs h-40 rounded-xl overflow-hidden shadow-xl border-4 border-gray-300 mb-6">
+                        <img id="card-back-img-display" src="${cardBackImageUrl}" alt="Card Back" class="w-full h-full object-cover"/>
+                    </div>
+
+                    <!-- Input field to change back image -->
+                    <label for="backImageInput" class="bg-primary-green text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md cursor-pointer flex items-center">
+                        <i data-lucide="image" class="w-5 h-5 ml-2"></i>
+                        تغيير صورة الخلف
+                    </label>
+                    <input type="file" id="backImageInput" accept="image/*" class="hidden" onchange="handleImageChange(event, 'back')">
+                </div>
+            `;
+        }
+
+
+        function renderCardsView() {
+            const cardToggle = `
+                <div class="flex justify-center space-x-4 mb-4">
+                    <button id="toggle-student" class="p-2 w-full max-w-[150px] rounded-full text-sm font-semibold transition-all shadow-md" onclick="switchCard('student')">
+                        بطاقة الطالب
+                    </button>
+                    <button id="toggle-residence" class="p-2 w-full max-w-[150px] rounded-full text-sm font-semibold transition-all shadow-md" onclick="switchCard('residence')">
+                        بطاقة الإقامة
+                    </button>
+                </div>
+            `;
+            
+            const cardContainer = `
+                <div id="id-card-container" class="id-card-container" onclick="flipCard()">
+                    <div id="id-card" class="id-card ${isCardFlipped ? 'flipped' : ''}">
+                        ${renderCardFront(currentCard)}
+                        ${renderCardBack(currentCard)}
+                    </div>
+                </div>
+                <p class="text-center text-gray-500 text-sm mt-3">انقر على البطاقة لقلبها</p>
+            `;
+
+            const header = renderHeader("بطاقات الهوية");
+            
+            return header + cardToggle + cardContainer;
+        }
+
+        function renderProfileView() {
+            const header = renderHeader("ملفي الشخصي");
+
+            const profileCard = `
+                <div class="bg-primary-green rounded-xl p-4 mb-4 flex items-center shadow-lg mt-2" style="direction: rtl;">
+                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-white/50">
+                        <img id="profile-card-img" src="${profileImageUrl}" alt="Profile" class="w-full h-full object-cover"/>
+                    </div>
+                    <div class="mr-4 text-right text-white">
+                        <h2 class="text-lg font-bold">${USER_DATA.name_en}</h2>
+                        <p class="text-sm font-light">${USER_DATA.university_en}</p>
+                    </div>
+                </div>
+            `;
+
+            const detailCard = (icon, title, value) => `
+                <div class="bg-white rounded-xl p-4 mb-4 flex items-center shadow-md" style="direction: rtl;">
+                    <div class="p-2 rounded-full bg-gray-100 text-primary-green">
+                        <i data-lucide="${icon}" class="w-5 h-5"></i>
+                    </div>
+                    <div class="mr-4 flex-grow text-right">
+                        <p class="text-sm text-gray-500">${title}</p>
+                        <p class="text-base font-semibold text-black/80">${value}</p>
+                    </div>
+                </div>
+            `;
+            
+            const languageCard = `
+                <div class="bg-white rounded-xl p-4 mb-6 flex justify-between items-center shadow-md" style="direction: rtl;">
+                    <div class="flex items-center">
+                        <div class="p-2 rounded-full bg-gray-100 text-primary-green">
+                            <i data-lucide="languages" class="w-5 h-5"></i>
+                        </div>
+                        <span class="mr-4 text-base font-semibold text-black/80">تغيير اللغة</span>
+                    </div>
+                    <button class="bg-primary-green text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md transition-all hover:bg-opacity-90">
+                        en-DZ
+                    </button>
+                </div>
+            `;
+
+            const logoutButton = `
+                <button class="bg-logout-red text-white w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all hover:bg-opacity-90" onclick="console.log('Logout clicked')">
+                    تسجيل الخروج
+                </button>
+            `;
+
+            const content = `
+                ${profileCard}
+                ${detailCard('map-pin', 'مكان الميلاد', USER_DATA.pob_ar)}
+                ${detailCard('calendar', 'تاريخ الميلاد', USER_DATA.dob)}
+                ${languageCard}
+                ${logoutButton}
+            `;
+
+            return header + content;
+        }
+
+        // --- Card Interaction Logic ---
+        function flipCard() {
+            // Check if we are currently in the cards view before flipping
+            if (currentView !== 'cards') return; 
+
+            isCardFlipped = !isCardFlipped;
+            const cardElement = document.getElementById('id-card');
+            if (cardElement) {
+                if (isCardFlipped) {
+                    cardElement.classList.add('flipped');
+                } else {
+                    cardElement.classList.remove('flipped');
+                }
+            }
+        }
+
+        /**
+         * Handles the change event for image inputs.
+         * @param {Event} event - The file input change event.
+         * @param {string} type - 'profile' for profile image, 'back' for card back image.
+         */
+        function handleImageChange(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const url = e.target.result;
+                if (type === 'profile') {
+                    profileImageUrl = url;
+                    // Update all profile images across views
+                    const imgElements = document.querySelectorAll('#card-profile-img, #header-profile-img, #profile-card-img');
+                    imgElements.forEach(img => {
+                        img.src = profileImageUrl;
+                    });
+                } else if (type === 'back') {
+                    cardBackImageUrl = url;
+                    // Update the card back image display
+                    const backImg = document.getElementById('card-back-img-display');
+                    if (backImg) {
+                        backImg.src = cardBackImageUrl;
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- Main Logic ---
+
+        /**
+         * Switches the active view and re-renders the content.
+         */
+        function showView(view) {
+            currentView = view;
+            const contentDiv = document.getElementById('main-content');
+            
+            // Render the correct view content
+            switch (view) {
+                case 'home':
+                    contentDiv.innerHTML = renderHomeView();
+                    // Set direction to RTL for Home view elements
+                    contentDiv.style.direction = 'rtl';
+                    document.documentElement.setAttribute('dir', 'rtl');
+                    break;
+                case 'cards':
+                    // Reset card flip state when entering cards view
+                    isCardFlipped = false; 
+                    contentDiv.innerHTML = renderCardsView();
+                    contentDiv.style.direction = 'rtl';
+                    document.documentElement.setAttribute('dir', 'rtl');
+                    // Ensure the card buttons reflect the initial state
+                    updateCardToggle(currentCard);
+                    break;
+                case 'profile':
+                    contentDiv.innerHTML = renderProfileView();
+                    // Set direction to RTL for Profile view elements (Adjusted for better Arabic flow)
+                    contentDiv.style.direction = 'rtl';
+                    document.documentElement.setAttribute('dir', 'rtl');
+                    break;
+                default:
+                    contentDiv.innerHTML = `<div>View not found: ${view}</div>`;
+            }
+            
+            // Update the navigation bar to show the active tab
+            updateNav(view);
+            
+            // Re-render lucide icons after injecting HTML
+            lucide.createIcons();
+            
+            // Scroll to top when view changes
+            contentDiv.scrollTop = 0;
+        }
+        
+        /**
+         * Switches the active card within the 'cards' view.
+         */
+        function switchCard(cardType) {
+            currentCard = cardType;
+            isCardFlipped = false; // Reset flip when switching card type
+            
+            const cardContainer = document.getElementById('id-card-container');
+            if (cardContainer) {
+                // Re-render the entire card container to refresh content and flip state
+                cardContainer.outerHTML = `
+                    <div id="id-card-container" class="id-card-container" onclick="flipCard()">
+                        <div id="id-card" class="id-card">
+                            ${renderCardFront(currentCard)}
+                            ${renderCardBack(currentCard)}
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons(); // Re-create icons for the new card content
+                updateCardToggle(cardType);
+            }
+        }
+        
+        /**
+         * Updates the visual style of the card toggle buttons.
+         */
+        function updateCardToggle(activeCard) {
+            const studentBtn = document.getElementById('toggle-student');
+            const residenceBtn = document.getElementById('toggle-residence');
+            
+            [studentBtn, residenceBtn].forEach(btn => {
+                if (!btn) return;
+                
+                if (btn.id.includes(activeCard)) {
+                    btn.classList.add('bg-primary-green', 'text-white');
+                    btn.classList.remove('bg-white', 'text-gray-700', 'border');
+                } else {
+                    btn.classList.remove('bg-primary-green', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-200');
+                }
+            });
+        }
+
+
+        // Initialize the app on page load
+        window.onload = () => {
+            // Initial render: show the Home view
+            showView(currentView);
+        };
+    </script>
+
+</body>
+</html>
