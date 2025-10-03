@@ -165,7 +165,7 @@
             firstname_ar: "أمياس",
             university_en: "université de béjaia",
             university_ar: "جامعة بجاية",
-            dob: "2005-12-04",
+            dob: "2005-12-04", // Changed to ISO format (YYYY-MM-DD) for date input
             pob_ar: "بجاية",
             major_ar: "علوم الطبيعة والحياة",
             academic_year: "2025/2026",
@@ -174,6 +174,8 @@
             card_residence_details: "يستفيد هذا الطالب من خدمات النقل",
             residence_building: "بريشاش 3",
             residence_room: "القمر",
+            // New field for language preference
+            language: "ar-DZ", 
         };
 
         const HOME_SERVICES = [
@@ -237,6 +239,27 @@
             // Re-render icons to match the screenshot style (filled for active, outline for inactive)
             lucide.createIcons();
         }
+        
+        /**
+         * Renders a standardized detail card for fields.
+         */
+        const detailCard = (icon, title, value, editable = false, type = 'text', id = '') => `
+            <div class="bg-white rounded-xl p-4 mb-4 flex items-center shadow-md" style="direction: rtl;">
+                <div class="p-2 rounded-full bg-gray-100 text-primary-green flex-shrink-0">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                </div>
+                <div class="mr-4 flex-grow text-right">
+                    <p class="text-sm text-gray-500">${title}</p>
+                    ${editable 
+                        ? `<input type="${type}" id="${id}" value="${value}" 
+                           class="bg-gray-100 text-black/80 text-base font-semibold w-full p-1 rounded-md text-right border border-transparent focus:border-primary-green transition-colors ${type === 'date' ? 'h-9' : ''}" 
+                           placeholder="${type === 'date' ? 'YYYY-MM-DD' : ''}">`
+                        : `<p class="text-base font-semibold text-black/80">${value}</p>`
+                    }
+                </div>
+            </div>
+        `;
+
 
         // --- View Renderers ---
 
@@ -326,11 +349,11 @@
                     <div class="mt-14 space-y-2">
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.firstname_ar}</span>
-                            <span>أمياس</span>
+                            <span>الإسم</span>
                         </div>
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.surname_ar}</span>
-                            <span>بركالي</span>
+                            <span>اللقب</span>
                         </div>
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.dob}</span>
@@ -338,7 +361,7 @@
                         </div>
                         <div class="flex items-center space-x-4">
                             <span class="font-bold text-primary-green">${USER_DATA.major_ar}</span>
-                            <span>علوم الطبيعة والحياة</span>
+                            <span>التخصص</span>
                         </div>
                     </div>
                 </div>
@@ -351,11 +374,11 @@
                     <div class="mt-14 space-y-2">
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.firstname_ar}</span>
-                            <span>أمياس</span>
+                            <span>الإسم</span>
                         </div>
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.surname_ar}</span>
-                            <span>بركالي</span>
+                            <span>اللقب</span>
                         </div>
                         <div class="flex items-center space-x-4">
                             <span class="font-bold">${USER_DATA.dob}</span>
@@ -381,11 +404,11 @@
                         <p>الإسم</p>
                     </div>
                     <div class="card-detail-item">
-                        <p class="font-bold text-sm">AMAYAS</p>
+                        <p class="font-bold text-sm">${USER_DATA.name_en.split(' ')[1] || 'AMAYAS'}</p>
                         <p>Prenom</p>
                     </div>
                     <div class="card-detail-item">
-                        <p class="font-bold text-sm">BERKANI</p>
+                        <p class="font-bold text-sm">${USER_DATA.name_en.split(' ')[0] || 'BERKANI'}</p>
                         <p>Nom</p>
                     </div>
                 </div>
@@ -462,41 +485,60 @@
         function renderProfileView() {
             const header = renderHeader("ملفي الشخصي");
 
-            const profileCard = `
+            // Profile Card (Now editable fields for Name)
+            const editableProfileCard = `
                 <div class="bg-primary-green rounded-xl p-4 mb-4 flex items-center shadow-lg mt-2" style="direction: rtl;">
-                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-white/50">
+                    <!-- Profile Image container -->
+                    <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-white/50 flex-shrink-0">
                         <img id="profile-card-img" src="${profileImageUrl}" alt="Profile" class="w-full h-full object-cover"/>
                     </div>
-                    <div class="mr-4 text-right text-white">
-                        <h2 class="text-lg font-bold">${USER_DATA.name_en}</h2>
-                        <p class="text-sm font-light">${USER_DATA.university_en}</p>
+                    
+                    <div class="mr-4 text-right text-white flex-grow">
+                        <p class="text-xs font-light">الاسم بالإنجليزية (اللقب الاسم)</p>
+                        <input type="text" id="edit-name-en" value="${USER_DATA.name_en}" placeholder="BERKANI AMAYAS" 
+                            class="bg-white/20 text-white text-lg font-bold w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors mb-2" 
+                            style="direction: ltr;">
+                        
+                        <p class="text-xs font-light mt-2">اللقب بالعربية</p>
+                        <input type="text" id="edit-surname-ar" value="${USER_DATA.surname_ar}" placeholder="بركاني"
+                            class="bg-white/20 text-white text-base w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors mb-2">
+                        
+                        <p class="text-xs font-light mt-2">الاسم بالعربية</p>
+                        <input type="text" id="edit-firstname-ar" value="${USER_DATA.firstname_ar}" placeholder="أمياس"
+                            class="bg-white/20 text-white text-base w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors">
                     </div>
                 </div>
             `;
 
-            const detailCard = (icon, title, value) => `
-                <div class="bg-white rounded-xl p-4 mb-4 flex items-center shadow-md" style="direction: rtl;">
-                    <div class="p-2 rounded-full bg-gray-100 text-primary-green">
-                        <i data-lucide="${icon}" class="w-5 h-5"></i>
-                    </div>
-                    <div class="mr-4 flex-grow text-right">
-                        <p class="text-sm text-gray-500">${title}</p>
-                        <p class="text-base font-semibold text-black/80">${value}</p>
-                    </div>
-                </div>
+            // Save Button
+            const saveButton = `
+                <button class="bg-primary-green text-white w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all hover:bg-opacity-90 mb-4" onclick="saveProfileChanges()">
+                    حفظ التغييرات
+                </button>
             `;
+
+            // Place of Birth Card (Editable field)
+            const editablePOBCard = detailCard('map-pin', 'مكان الميلاد', USER_DATA.pob_ar, true, 'text', 'edit-pob-ar');
+
+            // Date of Birth Card (Editable field)
+            // Note: date input type requires value in YYYY-MM-DD format
+            const editableDOBCard = detailCard('cake', 'تاريخ الميلاد', USER_DATA.dob, true, 'date', 'edit-dob');
             
+            // Language Card (Now editable using a dropdown/select)
             const languageCard = `
                 <div class="bg-white rounded-xl p-4 mb-6 flex justify-between items-center shadow-md" style="direction: rtl;">
                     <div class="flex items-center">
                         <div class="p-2 rounded-full bg-gray-100 text-primary-green">
                             <i data-lucide="languages" class="w-5 h-5"></i>
                         </div>
-                        <span class="mr-4 text-base font-semibold text-black/80">تغيير اللغة</span>
+                        <span class="mr-4 text-base font-semibold text-black/80">لغة التطبيق</span>
                     </div>
-                    <button class="bg-primary-green text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md transition-all hover:bg-opacity-90">
-                        en-DZ
-                    </button>
+                    <select id="edit-language" onchange="handleLanguageChange(this.value)"
+                            class="bg-gray-100 text-black/80 font-semibold px-4 py-2 rounded-lg text-sm appearance-none cursor-pointer border border-transparent focus:border-primary-green transition-colors">
+                        <option value="ar-DZ" ${USER_DATA.language === 'ar-DZ' ? 'selected' : ''}>العربية (الجزائر)</option>
+                        <option value="fr-DZ" ${USER_DATA.language === 'fr-DZ' ? 'selected' : ''}>الفرنسية (الجزائر)</option>
+                        <option value="en-US" ${USER_DATA.language === 'en-US' ? 'selected' : ''}>الإنجليزية</option>
+                    </select>
                 </div>
             `;
 
@@ -507,9 +549,10 @@
             `;
 
             const content = `
-                ${profileCard}
-                ${detailCard('map-pin', 'مكان الميلاد', USER_DATA.pob_ar)}
-                ${detailCard('calendar', 'تاريخ الميلاد', USER_DATA.dob)}
+                ${editableProfileCard}
+                ${saveButton}
+                ${editablePOBCard}
+                ${editableDOBCard}
                 ${languageCard}
                 ${logoutButton}
             `;
@@ -562,6 +605,47 @@
                 }
             };
             reader.readAsDataURL(file);
+        }
+
+        /**
+         * Handles the change in language selection.
+         */
+        function handleLanguageChange(newLang) {
+            // This is just a simulation. In a real app, this would trigger a full UI reload with new translations.
+            USER_DATA.language = newLang;
+            console.log(`تم تغيير اللغة إلى: ${newLang}. (تتطلب إعادة تحميل كاملة في تطبيق حقيقي)`);
+        }
+
+        /**
+         * Reads and saves changes from the Profile View form inputs to USER_DATA.
+         */
+        function saveProfileChanges() {
+            const newSurname = document.getElementById('edit-surname-ar').value.trim();
+            const newFirstname = document.getElementById('edit-firstname-ar').value.trim();
+            const newNameEn = document.getElementById('edit-name-en').value.trim();
+            const newPOB = document.getElementById('edit-pob-ar').value.trim();
+            const newDOB = document.getElementById('edit-dob').value;
+
+            // Simple check for empty fields (Name/POB)
+            if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB) {
+                console.error("يرجى ملء جميع الحقول المطلوبة (الاسم، مكان وتاريخ الميلاد).");
+                return;
+            }
+
+            // 1. Update Global Data
+            USER_DATA.surname_ar = newSurname;
+            USER_DATA.firstname_ar = newFirstname;
+            USER_DATA.name_en = newNameEn; 
+            USER_DATA.name_ar = `${newSurname} ${newFirstname}`;
+            USER_DATA.pob_ar = newPOB;
+            USER_DATA.dob = newDOB; // Date of Birth updated
+
+            // 2. Re-render the Profile View and Cards View to reflect the saved changes immediately
+            showView('profile'); 
+            
+            // Optional: Provide visual feedback to the user
+            console.log("تم حفظ بيانات الملف الشخصي بنجاح.", USER_DATA);
+            // In a real app, you would show a success message toast/modal here.
         }
 
         // --- Main Logic ---
