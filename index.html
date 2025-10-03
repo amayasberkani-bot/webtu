@@ -178,9 +178,36 @@
             // تم فصل متغيرات الخلفية لكل بطاقة
             studentCardBackground: null, // خلفية بطاقة الطالب
             residenceCardBackground: null, // خلفية بطاقة الإقامة
-            currentCardType: 'student' // الحالة الافتراضية للبطاقة المعروضة
+            currentCardType: 'student', // الحالة الافتراضية للبطاقة المعروضة
+            currentLanguage: 'ar-DZ' // اللغة الافتراضية (العربية)
         };
 
+        // ----------------------------------------------------------------------
+        // منطق تبديل اللغة (Language Toggle Logic)
+        // ----------------------------------------------------------------------
+        
+        /**
+         * دالة لتبديل اللغة وتحديث محتوى زر اللغة
+         */
+        function toggleLanguage() {
+            // التبديل بين العربية والفرنسية
+            if (userData.currentLanguage === 'ar-DZ') {
+                userData.currentLanguage = 'fr-DZ';
+            } else {
+                userData.currentLanguage = 'ar-DZ';
+            }
+
+            // تحديث محتوى الزر (في حال كان المستخدم لا يزال في صفحة الملف الشخصي)
+            const langButton = document.getElementById('languageButton');
+            if (langButton) {
+                langButton.textContent = userData.currentLanguage;
+            }
+            
+            // في تطبيق فعلي، هنا يتم إعادة تحميل وترجمة واجهة المستخدم
+            // (في هذا التطبيق، سنكتفي بتحديث عرض الملف الشخصي لتعكس حالة الزر)
+            // بما أن الصفحة لا تزال مرسومة، يكفي تحديث محتوى الزر.
+        }
+        
         // ----------------------------------------------------------------------
         // منطق التمرير (Swipe Logic)
         // ----------------------------------------------------------------------
@@ -193,10 +220,10 @@
             let newCardType = userData.currentCardType;
 
             // في سياق اللغة العربية (RTL):
-            // السحب إلى اليسار (Left Swipe) يعني الانتقال إلى التالي
+            // السحب إلى اليسار (Left Swipe) يعني الانتقال إلى التالي (من الطالب إلى الإقامة)
             if (userData.currentCardType === 'student' && direction === 'left') {
                 newCardType = 'residence';
-            // السحب إلى اليمين (Right Swipe) يعني الانتقال إلى السابق
+            // السحب إلى اليمين (Right Swipe) يعني الانتقال إلى السابق (من الإقامة إلى الطالب)
             } else if (userData.currentCardType === 'residence' && direction === 'right') {
                 newCardType = 'student';
             }
@@ -218,15 +245,12 @@
 
             // عند بدء اللمس
             element.addEventListener('touchstart', (e) => {
-                // منع التمرير العمودي الافتراضي لضمان التعامل الأفقي فقط
-                // e.preventDefault(); // لا ينصح به لأنه يمنع التمرير العمودي للصفحة
                 startX = e.touches[0].clientX;
                 endX = startX; // إعادة تعيين
             }, { passive: true }); // استخدام passive: true لتحسين الأداء
 
             // عند نهاية اللمس
             element.addEventListener('touchend', (e) => {
-                // e.preventDefault(); // تجنب منع الافتراضي هنا أيضاً
                 endX = e.changedTouches[0].clientX;
 
                 const deltaX = startX - endX; // موجب إذا كان السحب من اليمين إلى اليسار (Swipe Left)
@@ -568,10 +592,9 @@
                     <!-- تذييل مزخرف (الخلفية منقطة) - يظهر فقط في حال عدم وجود صورة خلفية مخصصة -->
                     ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
                     
-                    <!-- المحتوى الداخلي الفارغ - لم يتبق سوى المساحة الفارغة -->
+                    <!-- المحتوى الداخلي الفارغ -->
                     <div class="relative z-20 w-full h-full p-4 text-center">
-                        <p class="text-gray-500 mt-20">البطاقة ${type === 'student' ? 'الأكاديمية' : 'السكنية'} جاهزة.</p>
-                        <p class="text-gray-400 text-sm mt-1">مرّر إصبعك للتبديل</p>
+                         <!-- المحتوى فارغ هنا لانتظار التصميم الفعلي -->
                     </div>
                 </div>
             `;
@@ -625,8 +648,9 @@
                         <i data-lucide="languages" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
                         <p class="text-base font-medium text-gray-800">تغيير اللغة (Change Language)</p>
                     </div>
-                    <button class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
-                        en-DZ
+                    <!-- تم تعديل الزر لإضافة ID واستدعاء دالة toggleLanguage() -->
+                    <button id="languageButton" onclick="toggleLanguage()" class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
+                        ${userData.currentLanguage}
                     </button>
                 </div>
                 
