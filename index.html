@@ -205,7 +205,7 @@
         ];
 
         // --- State Management ---
-        let currentView = 'home';
+        let currentView = 'profile'; // Start on profile page to see the fix immediately
         let currentCard = 'student'; // 'student' or 'residence'
         let isCardFlipped = false;
         let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=صورة"; // Default profile image
@@ -321,7 +321,7 @@
                         <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
                         <p>وزارة التعليم العالي والبحث العلمي</p>
                         <p>مديرية الخدمات الجامعية</p>
-                        <p>جامعة بجاية</p>
+                        <p>${USER_DATA.university_ar}</p>
                     </div>
                     <!-- Placeholder for Algerian Government Logo -->
                     <div class="absolute top-6 left-6 w-8 h-8 rounded-full bg-primary-green opacity-80 border-2 border-white"></div>
@@ -506,6 +506,7 @@
         }
 
         function renderProfileView() {
+            // Header title is now based on the image provided in the user's context (My Profile / ملفي الشخصي)
             const header = renderHeader("ملفي الشخصي");
 
             // Profile Card (Now editable fields for Name)
@@ -532,6 +533,9 @@
                     </div>
                 </div>
             `;
+
+            // University Card (Editable field - Added this based on the screenshot provided)
+            const editableUniversityCard = detailCard('school', 'الجامعة بالإنجليزية', USER_DATA.university_en, true, 'text', 'edit-university-en');
 
             // Save Button - Calls the saveProfileChanges function
             const saveButton = `
@@ -572,6 +576,7 @@
 
             const content = `
                 ${editableProfileCard}
+                ${editableUniversityCard} <!-- New University Field -->
                 ${saveButton}
                 ${editablePOBCard}
                 ${editableDOBCard}
@@ -721,9 +726,6 @@
 
         /**
          * Reads and saves changes from the Profile View form inputs to USER_DATA.
-         * NOTE: The issue with the save button not working was likely due to 
-         * using 'onclick' without ensuring the showView call successfully re-rendered the new data.
-         * The current implementation uses the function call directly.
          */
         function saveProfileChanges() {
             const newSurname = document.getElementById('edit-surname-ar')?.value.trim();
@@ -732,10 +734,11 @@
             const newPOB = document.getElementById('edit-pob-ar')?.value.trim();
             const newDOB = document.getElementById('edit-dob')?.value;
             const newLanguage = document.getElementById('edit-language')?.value;
+            const newUniversityEn = document.getElementById('edit-university-en')?.value.trim(); // Get new University value
 
             // Check if required inputs exist and are filled
-            if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB || !newLanguage) {
-                console.error("يرجى التأكد من ملء جميع حقول الاسم، ومكان وتاريخ الميلاد، واللغة.");
+            if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB || !newLanguage || !newUniversityEn) {
+                console.error("يرجى التأكد من ملء جميع الحقول المطلوبة (الاسم، الجامعة، مكان وتاريخ الميلاد، واللغة).");
                 // In a real app, display an error message on screen
                 return;
             }
@@ -744,16 +747,17 @@
             USER_DATA.surname_ar = newSurname;
             USER_DATA.firstname_ar = newFirstname;
             USER_DATA.name_en = newNameEn; 
-            USER_DATA.name_ar = `${newSurname} ${newFirstname}`;
+            // Derive Arabic full name from components
+            USER_DATA.name_ar = `${newSurname} ${newFirstname}`; 
             USER_DATA.pob_ar = newPOB;
             USER_DATA.dob = newDOB;
             USER_DATA.language = newLanguage;
+            USER_DATA.university_en = newUniversityEn; // Update University
+            // NOTE: university_ar is not editable on the profile page, so we keep the current value.
 
             // 2. Re-render the current view to reflect the saved changes immediately
-            // If the user is on the profile page, re-render the profile page.
-            if (currentView === 'profile') {
-                showView('profile'); 
-            }
+            // The user requested to see the updated profile page immediately after saving.
+            showView('profile'); 
             
             // Log for debugging and confirmation
             console.log("تم حفظ بيانات الملف الشخصي بنجاح.", USER_DATA);
@@ -830,10 +834,11 @@
 
         // Initialize the app on page load
         window.onload = () => {
-            // Initial render: show the Home view
+            // Initial render: show the Profile view as requested for verification
             showView(currentView);
         };
     </script>
 
 </body>
 </html>
+
