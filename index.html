@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الطالب | Student Portal</title>
     
-    <!-- PWA Meta Tags for Installability (Simulated) -->
+    <!-- PWA Meta Tags (Left for basic compatibility) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- يجب توفير ملف manifest.json للتشغيل الفعلي، ولكن هنا نكتفي بالتعريف لأغراض المحاكاة -->
     <meta name="theme-color" content="#008060">
     
     <!-- تحميل Tailwind CSS -->
@@ -84,6 +83,11 @@
             /* مهم: لضمان أن الصورة الخلفية تملأ الحاوية بالكامل */
             background-size: cover;
             background-position: center; 
+            
+            /* منع تحديد النص داخل البطاقة */
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y; /* السماح بالتمرير العمودي فقط، والتعامل مع الأفقي بالجافاسكريبت */
         }
 
         /* تنسيق طبقة التعتيم على خلفية البطاقة */
@@ -147,21 +151,10 @@
 
     <!-- جلب الأيقونات بعد تحميل DOM ومنطق التطبيق -->
     <script>
-        // متغير عالمي لتخزين حدث التثبيت المؤجل (PWA)
-        let deferredPrompt = null; 
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
-            // **منطق PWA: اعتراض حدث التثبيت**
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // منع شريط المعلومات المصغر من الظهور تلقائيًا
-                e.preventDefault();
-                // تخزين الحدث ليتم تشغيله يدوياً عند النقر على الزر
-                deferredPrompt = e;
-                console.log("PWA install prompt deferred.");
-            });
-
             // عند التحميل، نمرر الزر الأول كمرجع (لأنه النشط افتراضياً)
             const initialButton = document.querySelector('.nav-item.active');
             navigate('home', initialButton, true); 
@@ -188,6 +181,76 @@
             currentCardType: 'student' // الحالة الافتراضية للبطاقة المعروضة
         };
 
+        // ----------------------------------------------------------------------
+        // منطق التمرير (Swipe Logic)
+        // ----------------------------------------------------------------------
+        
+        /**
+         * دالة لتحديد البطاقة التالية/السابقة بناءً على التمرير
+         * @param {string} direction - 'left' (يمين إلى يسار) أو 'right' (يسار إلى يمين)
+         */
+        function switchCard(direction) {
+            let newCardType = userData.currentCardType;
+
+            // في سياق اللغة العربية (RTL):
+            // السحب إلى اليسار (Left Swipe) يعني الانتقال إلى التالي
+            if (userData.currentCardType === 'student' && direction === 'left') {
+                newCardType = 'residence';
+            // السحب إلى اليمين (Right Swipe) يعني الانتقال إلى السابق
+            } else if (userData.currentCardType === 'residence' && direction === 'right') {
+                newCardType = 'student';
+            }
+
+            // إذا تغير نوع البطاقة، قم بعرضها
+            if (newCardType !== userData.currentCardType) {
+                displayCard(newCardType);
+            }
+        }
+        
+        /**
+         * تهيئة كشف الإيماءات (Gestures) على عنصر محدد
+         * @param {HTMLElement} element - العنصر المراد تفعيل التمرير عليه
+         */
+        function setupSwipeDetection(element) {
+            let startX = 0;
+            let endX = 0;
+            const threshold = 50; // الحد الأدنى للمسافة (بالبيكسل) لاحتسابها كسحب
+
+            // عند بدء اللمس
+            element.addEventListener('touchstart', (e) => {
+                // منع التمرير العمودي الافتراضي لضمان التعامل الأفقي فقط
+                // e.preventDefault(); // لا ينصح به لأنه يمنع التمرير العمودي للصفحة
+                startX = e.touches[0].clientX;
+                endX = startX; // إعادة تعيين
+            }, { passive: true }); // استخدام passive: true لتحسين الأداء
+
+            // عند نهاية اللمس
+            element.addEventListener('touchend', (e) => {
+                // e.preventDefault(); // تجنب منع الافتراضي هنا أيضاً
+                endX = e.changedTouches[0].clientX;
+
+                const deltaX = startX - endX; // موجب إذا كان السحب من اليمين إلى اليسار (Swipe Left)
+
+                if (Math.abs(deltaX) > threshold) {
+                    if (deltaX > 0) {
+                        // السحب من اليمين إلى اليسار (Swipe Left)
+                        switchCard('left'); 
+                    } else {
+                        // السحب من اليسار إلى اليمين (Swipe Right)
+                        switchCard('right');
+                    }
+                }
+                // إعادة تعيين
+                startX = 0;
+                endX = 0;
+            }, { passive: true });
+        }
+
+
+        // ----------------------------------------------------------------------
+        // الدوال الأساسية (Navigation and Utilities)
+        // ----------------------------------------------------------------------
+        
         // دالة التنقل بين الشاشات
         function navigate(screen, clickedButton, isInitialLoad = false) {
             
@@ -246,40 +309,6 @@
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
             lucide.createIcons();
-        }
-
-        /**
-         * دالة لتشغيل المطالبة بالتثبيت آلياً أو عرض رسالة توجيهية كـ fallback
-         */
-        function showInstallPrompt() {
-            if (deferredPrompt) {
-                // تشغيل المطالبة التلقائية المخزنة
-                deferredPrompt.prompt();
-                
-                // مراقبة اختيار المستخدم
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the PWA install prompt');
-                        // يمكن عرض رسالة نجاح هنا
-                        displayCustomMessage('تم قبول التثبيت', 'تم قبول طلب تثبيت التطبيق بنجاح.', 'check-circle');
-                    } else {
-                        console.log('User dismissed the PWA install prompt');
-                        // يمكن عرض رسالة توجيهية هنا
-                    }
-                    deferredPrompt = null; // إفراغ المطالبة المخزنة
-                }).catch(error => {
-                    console.error('Error during prompt user choice:', error);
-                });
-            } else {
-                // الفشل في التقاط حدث beforeinstallprompt
-                // عرض رسالة التوجيه اليدوية كـ fallback
-                const message = "تعذر تشغيل نافذة التثبيت التلقائية.\n\n" +
-                                "لتثبيت الموقع كتطبيق (PWA) على هاتفك يرجى اتباع الخطوات:\n" +
-                                "1. انقر على قائمة المتصفح (عادةً الثلاث نقاط). \n" +
-                                "2. ابحث عن خيار 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.";
-                
-                displayCustomMessage('تثبيت التطبيق يدوياً', message, 'alert-triangle');
-            }
         }
 
 
@@ -391,6 +420,12 @@
 
             // عرض البطاقة الافتراضية بعد تحميل المحتوى
             displayCard(userData.currentCardType, true);
+            
+            // **تفعيل كشف التمرير على منطقة عرض البطاقة**
+            const cardDisplayArea = document.getElementById('cardDisplayArea');
+            if (cardDisplayArea) {
+                setupSwipeDetection(cardDisplayArea);
+            }
 
             // منطق تحميل الصورة الشخصية (مشتركة)
             document.getElementById('imageUploader').addEventListener('change', function(event) {
@@ -534,8 +569,9 @@
                     ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
                     
                     <!-- المحتوى الداخلي الفارغ - لم يتبق سوى المساحة الفارغة -->
-                    <div class="relative z-20 w-full h-full">
-                         <!-- المحتوى فارغ تماماً هنا -->
+                    <div class="relative z-20 w-full h-full p-4 text-center">
+                        <p class="text-gray-500 mt-20">البطاقة ${type === 'student' ? 'الأكاديمية' : 'السكنية'} جاهزة.</p>
+                        <p class="text-gray-400 text-sm mt-1">مرّر إصبعك للتبديل</p>
                     </div>
                 </div>
             `;
@@ -594,13 +630,7 @@
                     </button>
                 </div>
                 
-                <!-- زر التحميل كتطبيق (الجديد) -->
-                <button class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition duration-150 mt-4" onclick="showInstallPrompt()">
-                    <div class="flex items-center justify-center">
-                        <i data-lucide="download" class="w-6 h-6 ml-2"></i>
-                        <span>تحميل الموقع كـ تطبيق</span>
-                    </div>
-                </button>
+                <!-- تم إزالة زر التحميل كتطبيق هنا -->
 
                 <!-- زر تسجيل الخروج -->
                 <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
