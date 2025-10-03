@@ -178,11 +178,12 @@
             year: "2025/2026",
             matricule: "UN0601202525353025418",
             residenceInfo: "برشيش 3 - القسم: بجاية - الجناح والغرفة: 4-203", // بيانات بطاقة الإقامة
-            idCardImage: "https://placehold.co/40x40/d4d4d4/262626?text=U", // رابط الصورة الشخصية الافتراضي
+            idCardImage: "https://placehold.co/40x40/008060/ffffff?text=U", // رابط الصورة الشخصية الافتراضي
             studentCardBackground: null, 
             residenceCardBackground: null, 
             currentCardType: 'student', 
-            currentLanguage: 'ar-DZ' // اللغة الافتراضية (العربية)
+            currentLanguage: 'ar-DZ', // اللغة الافتراضية (العربية)
+            imageInputsVisible: true // حالة إظهار/إخفاء حقول الصور في شاشة البطاقات
         };
         
         // ** قاموس الترجمة **
@@ -214,7 +215,12 @@
                 'change_student_bg': 'تغيير خلفية بطاقة الطالب:',
                 'note_student_bg': 'ستظهر كخلفية لبطاقة الطالب.',
                 'change_residence_bg': 'تغيير خلفية بطاقة الإقامة:',
-                'note_residence_bg': 'ستظهر كخلفية لبطاقة الإقامة.'
+                'note_residence_bg': 'ستظهر كخلفية لبطاقة الإقامة.',
+                'customization_title': 'أدوات التخصيص',
+                'show_inputs': 'إظهار حقول الصور',
+                'hide_inputs': 'إخفاء حقول الصور',
+                'success': 'نجاح',
+                'save_success_message': 'تم حفظ معلومات الملف الشخصي بنجاح.',
             },
             'fr-DZ': {
                 'portal_title': 'Portail Étudiant',
@@ -243,7 +249,12 @@
                 'change_student_bg': 'Changer le fond de la carte étudiant:',
                 'note_student_bg': 'Apparaîtra comme fond pour la carte étudiant.',
                 'change_residence_bg': 'Changer le fond de la carte résidence:',
-                'note_residence_bg': 'Apparaîtra comme fond pour la carte résidence.'
+                'note_residence_bg': 'Apparaîtra comme fond pour la carte résidence.',
+                'customization_title': 'Outils de personnalisation',
+                'show_inputs': 'Afficher les champs image',
+                'hide_inputs': 'Masquer les champs image',
+                'success': 'Succès',
+                'save_success_message': 'Les informations du profil ont été enregistrées avec succès.',
             }
         };
 
@@ -278,7 +289,7 @@
                 document.getElementById('app').classList.remove('text-left');
             }
 
-            // 2. إعادة عرض الصفحة النشطة حالياً (عادةً الملف الشخصي)
+            // 2. إعادة عرض الصفحة النشطة حالياً 
             const activeNavButton = document.querySelector('.nav-item.active');
             let screen = 'profile'; // افتراضياً الملف الشخصي
             if (activeNavButton) {
@@ -305,6 +316,9 @@
             const isRTL = userData.currentLanguage === 'ar-DZ';
             const directionClass = isRTL ? 'text-right' : 'text-left';
 
+            // تحويل التاريخ من DD-MM-YYYY إلى YYYY-MM-DD لصالح حقل input type="date"
+            const dateForInput = userData.birthDate.split('-').reverse().join('-');
+
             // إنشاء مودال HTML بسيط
             const modalHtml = `
                 <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -327,7 +341,7 @@
                             <!-- تاريخ الميلاد -->
                             <div class="${directionClass}">
                                 <label for="inputBirthDate" class="block text-sm font-medium text-gray-700">${t('edit_birth_date_label')}</label>
-                                <input type="date" id="inputBirthDate" value="${userData.birthDate.split('-').reverse().join('-')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
+                                <input type="date" id="inputBirthDate" value="${dateForInput}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
                         </div>
 
@@ -346,8 +360,11 @@
 
             // تطبيق تأثير الظهور
             setTimeout(() => {
-                document.getElementById('editModalContent').classList.remove('scale-95', 'opacity-0');
-                document.getElementById('editModalContent').classList.add('scale-100', 'opacity-100');
+                const modalContent = document.getElementById('editModalContent');
+                if(modalContent) {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }
             }, 10);
         }
 
@@ -373,17 +390,52 @@
             userData.birthDate = birthDateDisplay;
 
             // إغلاق المودال
-            document.getElementById('editProfileModal').remove();
+            const modal = document.getElementById('editProfileModal');
+            if (modal) modal.remove();
 
             // إعادة عرض صفحة الملف الشخصي بالبيانات الجديدة
             const activeNavButton = document.querySelector('.nav-item.active');
             navigate('profile', activeNavButton);
             
             displayCustomMessage(
-                userData.currentLanguage === 'ar-DZ' ? 'نجاح' : 'Succès',
-                userData.currentLanguage === 'ar-DZ' ? 'تم حفظ معلومات الملف الشخصي بنجاح.' : 'Les informations du profil ont été enregistrées avec succès.',
+                t('success'),
+                t('save_success_message'),
                 'check-circle'
             );
+        }
+
+        // ----------------------------------------------------------------------
+        // منطق إخفاء/إظهار حقول الصور (Toggle Image Inputs Logic)
+        // ----------------------------------------------------------------------
+
+        /**
+         * دالة لإخفاء أو إظهار حقول إدخال الصور والخلفيات
+         * @param {boolean} show - إذا كانت true يتم الإظهار، وإذا كانت false يتم الإخفاء
+         */
+        function toggleImageInputs(show) {
+            userData.imageInputsVisible = show;
+            
+            const imageInputsContainer = document.getElementById('imageInputsContainer');
+            const showBtn = document.getElementById('showBtn');
+            const hideBtn = document.getElementById('hideBtn');
+
+            if (!imageInputsContainer || !showBtn || !hideBtn) return;
+            
+            if (show) {
+                // الإظهار
+                imageInputsContainer.style.display = 'block'; // استخدم block ليتناسب مع space-y
+                hideBtn.classList.remove('bg-blue-500', 'text-white');
+                hideBtn.classList.add('bg-gray-200', 'text-gray-600');
+                showBtn.classList.add('bg-blue-500', 'text-white');
+                showBtn.classList.remove('bg-gray-200', 'text-gray-600');
+            } else {
+                // الإخفاء
+                imageInputsContainer.style.display = 'none';
+                hideBtn.classList.add('bg-blue-500', 'text-white');
+                hideBtn.classList.remove('bg-gray-200', 'text-gray-600');
+                showBtn.classList.remove('bg-blue-500', 'text-white');
+                showBtn.classList.add('bg-gray-200', 'text-gray-600');
+            }
         }
         
         // ----------------------------------------------------------------------
@@ -609,32 +661,52 @@
 
                     <!-- حاوية أدوات التخصيص (مرئية دائماً) -->
                     <div id="customizationControls" class="space-y-4">
-                        <!-- خاصية رفع الصورة الشخصية (مستقلة) -->
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
-                            <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
+
+                         <!-- عنوان قسم الصور مع أزرار الإخفاء/الإظهار -->
+                        <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
+                            <h3 class="text-lg font-bold text-gray-800">${t('customization_title')}</h3>
+                            <!-- الأزرار الصغيرة للإخفاء والإظهار -->
+                            <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
+                                <!-- زر الإظهار -->
+                                <button id="showBtn" onclick="toggleImageInputs(true)" class="w-9 h-9 p-0 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                                <!-- زر الإخفاء -->
+                                <button id="hideBtn" onclick="toggleImageInputs(false)" class="w-9 h-9 p-0 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
+                                    <i data-lucide="eye-off" class="w-5 h-5"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- 1. خلفية بطاقة الطالب -->
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
-                            <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
-                            <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
-                                ${t('remove_background')}
-                            </button>
-                        </div>
+                        <!-- حاوية حقول إدخال الصور التي سيتم إخفاؤها/إظهارها -->
+                        <div id="imageInputsContainer" class="space-y-4"> 
+                            <!-- خاصية رفع الصورة الشخصية (مستقلة) -->
+                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                                <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
+                                <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
+                                <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
+                            </div>
 
-                        <!-- 2. خلفية بطاقة الإقامة -->
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
-                            <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
-                            <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
-                                ${t('remove_background')}
-                            </button>
-                        </div>
+                            <!-- 1. خلفية بطاقة الطالب -->
+                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                                <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
+                                <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                                <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
+                                <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
+                                    ${t('remove_background')}
+                                </button>
+                            </div>
+
+                            <!-- 2. خلفية بطاقة الإقامة -->
+                            <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                                <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
+                                <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
+                                <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
+                                <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
+                                    ${t('remove_background')}
+                                </button>
+                            </div>
+                        </div> <!-- نهاية imageInputsContainer -->
                     </div> <!-- نهاية customizationControls -->
                 </div>
             `;
@@ -650,6 +722,9 @@
                 setupSwipeDetection(cardDisplayArea);
             }
 
+            // **تطبيق حالة الإظهار/الإخفاء المحفوظة**
+            toggleImageInputs(userData.imageInputsVisible);
+
             // منطق تحميل الصورة الشخصية (مشتركة)
             document.getElementById('imageUploader').addEventListener('change', function(event) {
                 const file = event.target.files[0];
@@ -658,7 +733,8 @@
                     reader.onload = function(e) {
                         userData.idCardImage = e.target.result;
                         // تحديث الصورة في الهيدر والبطاقة
-                        document.getElementById('profileImageHeader').src = userData.idCardImage;
+                        const profileImageHeader = document.getElementById('profileImageHeader');
+                        if(profileImageHeader) profileImageHeader.src = userData.idCardImage;
                         displayCard(userData.currentCardType);
                     };
                     reader.readAsDataURL(file);
@@ -779,6 +855,9 @@
             const backgroundStyle = cardBackground 
                 ? `style="background-image: url('${cardBackground}'); background-size: cover; background-position: center;"` 
                 : '';
+            
+            // تحديد محتوى النص الداخلي (للتذكير بنوع البطاقة فقط)
+            const cardText = (type === 'student') ? t('student_card_button') : t('residence_card_button');
 
             // تصميم البطاقة الفارغة مع الخلفية والنقوش
             cardHtml = `
@@ -791,9 +870,12 @@
                     <!-- تذييل مزخرف (الخلفية منقطة) - يظهر فقط في حال عدم وجود صورة خلفية مخصصة -->
                     ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
                     
-                    <!-- المحتوى الداخلي الفارغ -->
-                    <div class="relative z-20 w-full h-full p-4 text-center">
-                         <!-- المحتوى فارغ هنا لانتظار التصميم الفعلي -->
+                    <!-- المحتوى الداخلي -->
+                    <div class="relative z-20 w-full h-full flex flex-col items-center justify-center text-center">
+                         <i data-lucide="info" class="w-8 h-8 text-gray-500 mb-2"></i>
+                         <p class="text-gray-600 font-bold text-xl">${cardText}</p>
+                         <img src="${userData.idCardImage}" alt="صورة المستخدم" class="mt-4 w-16 h-16 rounded-full object-cover border-2 border-gray-400">
+                         <p class="mt-2 text-sm text-gray-700">${userData.englishName}</p>
                     </div>
                 </div>
             `;
@@ -830,7 +912,7 @@
                 </div>
 
                 <!-- زر تعديل المعلومات -->
-                <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 mb-4">
+                <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 mb-4 flex items-center justify-center">
                     <i data-lucide="edit" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
                     ${t('edit_info_button')}
                 </button>
