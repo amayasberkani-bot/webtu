@@ -123,6 +123,17 @@
             text-align: right;
         }
 
+        /* Style for the hidden input file field */
+        .profile-image-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 10; /* Ensure it's clickable */
+        }
+
     </style>
 </head>
 <body class="bg-light-bg">
@@ -165,7 +176,7 @@
             firstname_ar: "أمياس",
             university_en: "université de béjaia",
             university_ar: "جامعة بجاية",
-            dob: "2005-12-04", // Changed to ISO format (YYYY-MM-DD) for date input
+            dob: "2005-12-04", 
             pob_ar: "بجاية",
             major_ar: "علوم الطبيعة والحياة",
             academic_year: "2025/2026",
@@ -174,7 +185,6 @@
             card_residence_details: "يستفيد هذا الطالب من خدمات النقل",
             residence_building: "بريشاش 3",
             residence_room: "القمر",
-            // New field for language preference
             language: "ar-DZ", 
         };
 
@@ -198,8 +208,12 @@
         let currentView = 'home';
         let currentCard = 'student'; // 'student' or 'residence'
         let isCardFlipped = false;
-        let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=Photo";
-        let cardBackImageUrl = "https://placehold.co/380x380/00A37A/ffffff?text=Card+Back+Image";
+        let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=صورة"; // Default profile image
+        let cardBackImageUrl = "https://placehold.co/380x380/00A37A/ffffff?text=صورة+خلفية"; // Default card back image
+        
+        // Timer for long press logic
+        let longPressTimer = null;
+        const LONG_PRESS_DURATION = 500; // milliseconds
 
         // --- Utility Functions ---
 
@@ -329,11 +343,18 @@
 
 
             // Profile Image (Top Center)
+            // Added event listeners for long press simulation
             const profileImage = `
-                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200">
+                <div id="card-image-wrapper" class="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200"
+                    ontouchstart="handleTouchStart(event, 'card-image-input')" 
+                    ontouchend="handleTouchEnd(event, 'card-image-input')"
+                    onmousedown="handleMouseDown(event, 'card-image-input')" 
+                    onmouseup="handleMouseUp(event, 'card-image-input')"
+                    onmouseout="handleMouseUp(event, 'card-image-input')">
+                    
                     <img id="card-profile-img" src="${profileImageUrl}" alt="Student Photo" class="w-full h-full object-cover"/>
-                    <!-- Input field to change profile image -->
-                    <input type="file" id="profileImageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImageChange(event, 'profile')">
+                    <!-- Hidden Input field to change card image -->
+                    <input type="file" id="card-image-input" accept="image/*" class="profile-image-input" onchange="handleImageChange(event, 'profile')">
                 </div>
             `;
 
@@ -467,14 +488,16 @@
                 </div>
             `;
             
+            // Note: Removed the standard click handler from id-card-container 
+            // to allow long-press detection on the card image itself.
             const cardContainer = `
-                <div id="id-card-container" class="id-card-container" onclick="flipCard()">
+                <div id="id-card-container" class="id-card-container" onclick="handleCardClick(event)">
                     <div id="id-card" class="id-card ${isCardFlipped ? 'flipped' : ''}">
                         ${renderCardFront(currentCard)}
                         ${renderCardBack(currentCard)}
                     </div>
                 </div>
-                <p class="text-center text-gray-500 text-sm mt-3">انقر على البطاقة لقلبها</p>
+                <p class="text-center text-gray-500 text-sm mt-3">انقر على البطاقة لقلبها. اضغط مطولاً على الصورة لتغييرها.</p>
             `;
 
             const header = renderHeader("بطاقات الهوية");
@@ -510,9 +533,9 @@
                 </div>
             `;
 
-            // Save Button
+            // Save Button - Calls the saveProfileChanges function
             const saveButton = `
-                <button class="bg-primary-green text-white w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all hover:bg-opacity-90 mb-4" onclick="saveProfileChanges()">
+                <button id="save-button" class="bg-primary-green text-white w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all hover:bg-opacity-90 mb-4" onclick="saveProfileChanges()">
                     حفظ التغييرات
                 </button>
             `;
@@ -521,10 +544,9 @@
             const editablePOBCard = detailCard('map-pin', 'مكان الميلاد', USER_DATA.pob_ar, true, 'text', 'edit-pob-ar');
 
             // Date of Birth Card (Editable field)
-            // Note: date input type requires value in YYYY-MM-DD format
             const editableDOBCard = detailCard('cake', 'تاريخ الميلاد', USER_DATA.dob, true, 'date', 'edit-dob');
             
-            // Language Card (Now editable using a dropdown/select)
+            // Language Card (Editable field)
             const languageCard = `
                 <div class="bg-white rounded-xl p-4 mb-6 flex justify-between items-center shadow-md" style="direction: rtl;">
                     <div class="flex items-center">
@@ -533,7 +555,7 @@
                         </div>
                         <span class="mr-4 text-base font-semibold text-black/80">لغة التطبيق</span>
                     </div>
-                    <select id="edit-language" onchange="handleLanguageChange(this.value)"
+                    <select id="edit-language"
                             class="bg-gray-100 text-black/80 font-semibold px-4 py-2 rounded-lg text-sm appearance-none cursor-pointer border border-transparent focus:border-primary-green transition-colors">
                         <option value="ar-DZ" ${USER_DATA.language === 'ar-DZ' ? 'selected' : ''}>العربية (الجزائر)</option>
                         <option value="fr-DZ" ${USER_DATA.language === 'fr-DZ' ? 'selected' : ''}>الفرنسية (الجزائر)</option>
@@ -561,8 +583,96 @@
         }
 
         // --- Card Interaction Logic ---
+
+        /**
+         * Clears any running long press timer.
+         */
+        function clearLongPressTimer() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }
+
+        /**
+         * Handles the start of a touch/mouse press (long press simulation).
+         * @param {Event} event - The touch or mouse event.
+         * @param {string} inputId - ID of the hidden file input to trigger.
+         */
+        function handleTouchStart(event, inputId) {
+            // Prevent default action (like scrolling) for touch events
+            if (event.type === 'touchstart') {
+                event.preventDefault(); 
+            }
+            clearLongPressTimer(); // Clear any existing timer
+            
+            // Start a new timer
+            longPressTimer = setTimeout(() => {
+                const fileInput = document.getElementById(inputId);
+                if (fileInput) {
+                    fileInput.click(); // Trigger the file input click after duration
+                }
+                longPressTimer = null; // Clear timer reference after execution
+            }, LONG_PRESS_DURATION);
+        }
+
+        /**
+         * Handles the end of a touch/mouse press (long press simulation).
+         * @param {Event} event - The touch or mouse event.
+         * @param {string} inputId - ID of the hidden file input associated.
+         */
+        function handleTouchEnd(event, inputId) {
+            // If the timer is still running, it means it was a short click/tap, so we clear the timer
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+            }
+        }
+
+        /**
+         * Mouse equivalent for handleTouchStart
+         */
+        function handleMouseDown(event, inputId) {
+            // Only handle the primary mouse button (left click)
+            if (event.button !== 0) return; 
+            handleTouchStart(event, inputId);
+        }
+
+        /**
+         * Mouse equivalent for handleTouchEnd
+         */
+        function handleMouseUp(event, inputId) {
+            handleTouchEnd(event, inputId);
+        }
+
+
+        /**
+         * Handles click on the card container to flip the card.
+         * We need this wrapper to prevent the flip when the long-press starts.
+         */
+        function handleCardClick(event) {
+             // If a long press timer was initiated but not completed, it's a short tap, so we flip.
+             // If longPressTimer is null, the click came from a different element or was a normal tap.
+            
+            // Check if the click/tap originated from outside the image wrapper
+            const imageWrapper = document.getElementById('card-image-wrapper');
+            if (imageWrapper && imageWrapper.contains(event.target)) {
+                // If it originated from the image, we rely on the long-press logic
+                // If longPressTimer is not null here, it means it was a short tap on the image, so we ignore it.
+                if (longPressTimer) {
+                    clearLongPressTimer(); // Prevent file input from opening
+                    flipCard(); // Treat short tap on image as flip
+                }
+                return;
+            }
+            
+            // Flip the card if the click is anywhere else on the card or container
+            flipCard();
+        }
+
+        /**
+         * Flips the current card.
+         */
         function flipCard() {
-            // Check if we are currently in the cards view before flipping
             if (currentView !== 'cards') return; 
 
             isCardFlipped = !isCardFlipped;
@@ -577,9 +687,9 @@
         }
 
         /**
-         * Handles the change event for image inputs.
+         * Handles the change event for image inputs (both profile and card back).
          * @param {Event} event - The file input change event.
-         * @param {string} type - 'profile' for profile image, 'back' for card back image.
+         * @param {string} type - 'profile' for profile image (used on card front), 'back' for card back image.
          */
         function handleImageChange(event, type) {
             const file = event.target.files[0];
@@ -603,32 +713,30 @@
                         backImg.src = cardBackImageUrl;
                     }
                 }
+                // Clear the input value so the same file can be selected again
+                event.target.value = ''; 
             };
             reader.readAsDataURL(file);
         }
 
         /**
-         * Handles the change in language selection.
-         */
-        function handleLanguageChange(newLang) {
-            // This is just a simulation. In a real app, this would trigger a full UI reload with new translations.
-            USER_DATA.language = newLang;
-            console.log(`تم تغيير اللغة إلى: ${newLang}. (تتطلب إعادة تحميل كاملة في تطبيق حقيقي)`);
-        }
-
-        /**
          * Reads and saves changes from the Profile View form inputs to USER_DATA.
+         * NOTE: The issue with the save button not working was likely due to 
+         * using 'onclick' without ensuring the showView call successfully re-rendered the new data.
+         * The current implementation uses the function call directly.
          */
         function saveProfileChanges() {
-            const newSurname = document.getElementById('edit-surname-ar').value.trim();
-            const newFirstname = document.getElementById('edit-firstname-ar').value.trim();
-            const newNameEn = document.getElementById('edit-name-en').value.trim();
-            const newPOB = document.getElementById('edit-pob-ar').value.trim();
-            const newDOB = document.getElementById('edit-dob').value;
+            const newSurname = document.getElementById('edit-surname-ar')?.value.trim();
+            const newFirstname = document.getElementById('edit-firstname-ar')?.value.trim();
+            const newNameEn = document.getElementById('edit-name-en')?.value.trim();
+            const newPOB = document.getElementById('edit-pob-ar')?.value.trim();
+            const newDOB = document.getElementById('edit-dob')?.value;
+            const newLanguage = document.getElementById('edit-language')?.value;
 
-            // Simple check for empty fields (Name/POB)
-            if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB) {
-                console.error("يرجى ملء جميع الحقول المطلوبة (الاسم، مكان وتاريخ الميلاد).");
+            // Check if required inputs exist and are filled
+            if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB || !newLanguage) {
+                console.error("يرجى التأكد من ملء جميع حقول الاسم، ومكان وتاريخ الميلاد، واللغة.");
+                // In a real app, display an error message on screen
                 return;
             }
 
@@ -638,14 +746,17 @@
             USER_DATA.name_en = newNameEn; 
             USER_DATA.name_ar = `${newSurname} ${newFirstname}`;
             USER_DATA.pob_ar = newPOB;
-            USER_DATA.dob = newDOB; // Date of Birth updated
+            USER_DATA.dob = newDOB;
+            USER_DATA.language = newLanguage;
 
-            // 2. Re-render the Profile View and Cards View to reflect the saved changes immediately
-            showView('profile'); 
+            // 2. Re-render the current view to reflect the saved changes immediately
+            // If the user is on the profile page, re-render the profile page.
+            if (currentView === 'profile') {
+                showView('profile'); 
+            }
             
-            // Optional: Provide visual feedback to the user
+            // Log for debugging and confirmation
             console.log("تم حفظ بيانات الملف الشخصي بنجاح.", USER_DATA);
-            // In a real app, you would show a success message toast/modal here.
         }
 
         // --- Main Logic ---
@@ -661,22 +772,18 @@
             switch (view) {
                 case 'home':
                     contentDiv.innerHTML = renderHomeView();
-                    // Set direction to RTL for Home view elements
                     contentDiv.style.direction = 'rtl';
                     document.documentElement.setAttribute('dir', 'rtl');
                     break;
                 case 'cards':
-                    // Reset card flip state when entering cards view
                     isCardFlipped = false; 
                     contentDiv.innerHTML = renderCardsView();
                     contentDiv.style.direction = 'rtl';
                     document.documentElement.setAttribute('dir', 'rtl');
-                    // Ensure the card buttons reflect the initial state
                     updateCardToggle(currentCard);
                     break;
                 case 'profile':
                     contentDiv.innerHTML = renderProfileView();
-                    // Set direction to RTL for Profile view elements (Adjusted for better Arabic flow)
                     contentDiv.style.direction = 'rtl';
                     document.documentElement.setAttribute('dir', 'rtl');
                     break;
@@ -684,13 +791,8 @@
                     contentDiv.innerHTML = `<div>View not found: ${view}</div>`;
             }
             
-            // Update the navigation bar to show the active tab
             updateNav(view);
-            
-            // Re-render lucide icons after injecting HTML
             lucide.createIcons();
-            
-            // Scroll to top when view changes
             contentDiv.scrollTop = 0;
         }
         
@@ -701,20 +803,8 @@
             currentCard = cardType;
             isCardFlipped = false; // Reset flip when switching card type
             
-            const cardContainer = document.getElementById('id-card-container');
-            if (cardContainer) {
-                // Re-render the entire card container to refresh content and flip state
-                cardContainer.outerHTML = `
-                    <div id="id-card-container" class="id-card-container" onclick="flipCard()">
-                        <div id="id-card" class="id-card">
-                            ${renderCardFront(currentCard)}
-                            ${renderCardBack(currentCard)}
-                        </div>
-                    </div>
-                `;
-                lucide.createIcons(); // Re-create icons for the new card content
-                updateCardToggle(cardType);
-            }
+            // Use showView to fully re-render the cards content, ensuring all events are attached correctly
+            showView('cards');
         }
         
         /**
