@@ -165,8 +165,11 @@
         const navItems = document.querySelectorAll('.nav-item');
         const htmlElement = document.querySelector('html'); // للتحكم في اتجاه الصفحة
 
+        // ----------------------------------------------------------------------
+        // بيانات المستخدم الافتراضية
+        // ----------------------------------------------------------------------
         const userData = {
-            name: "بركاني أمياس",
+            name: "بركاني أمياس", // الاسم بالعربية (غير قابل للتعديل هنا)
             englishName: "BERKANI AMAYAS",
             university: "جامعة بجاية",
             birthDate: "04-12-2005",
@@ -176,14 +179,13 @@
             matricule: "UN0601202525353025418",
             residenceInfo: "برشيش 3 - القسم: بجاية - الجناح والغرفة: 4-203", // بيانات بطاقة الإقامة
             idCardImage: "https://placehold.co/40x40/d4d4d4/262626?text=U", // رابط الصورة الشخصية الافتراضي
-            // تم فصل متغيرات الخلفية لكل بطاقة
-            studentCardBackground: null, // خلفية بطاقة الطالب
-            residenceCardBackground: null, // خلفية بطاقة الإقامة
-            currentCardType: 'student', // الحالة الافتراضية للبطاقة المعروضة
+            studentCardBackground: null, 
+            residenceCardBackground: null, 
+            currentCardType: 'student', 
             currentLanguage: 'ar-DZ' // اللغة الافتراضية (العربية)
         };
         
-        // ** قاموس الترجمة (لغرض العرض فقط) **
+        // ** قاموس الترجمة **
         const translations = {
             'ar-DZ': {
                 'portal_title': 'بوابة الطالب',
@@ -194,11 +196,25 @@
                 'birth_place_label': 'مكان الميلاد (Place of Birth)',
                 'birth_date_label': 'تاريخ الميلاد (Date of Birth)',
                 'language_switch_label': 'تغيير اللغة (Change Language)',
+                'edit_info_button': 'تعديل المعلومات',
+                'edit_modal_title': 'تعديل بيانات الملف الشخصي',
+                'edit_english_name_label': 'الاسم بالإنجليزية',
+                'edit_birth_place_label': 'مكان الميلاد',
+                'edit_birth_date_label': 'تاريخ الميلاد',
+                'save_button': 'حفظ التغييرات',
+                'cancel_button': 'إلغاء',
                 'logout_button': 'LOGOUT',
                 'university_name': 'وزارة التعليم العالي والبحث العلمي',
                 'university_name_profile': 'جامعة بجاية',
-                'birth_place': 'بجاية',
-                'birth_date': '04-12-2005'
+                'student_card_button': 'بطاقة الطالب',
+                'residence_card_button': 'بطاقة الإقامة',
+                'remove_background': 'إزالة الخلفية',
+                'change_profile_image': 'تغيير الصورة الشخصية:',
+                'note_image_shared': 'ملاحظة: الصورة المستخدمة في جميع البطاقات.',
+                'change_student_bg': 'تغيير خلفية بطاقة الطالب:',
+                'note_student_bg': 'ستظهر كخلفية لبطاقة الطالب.',
+                'change_residence_bg': 'تغيير خلفية بطاقة الإقامة:',
+                'note_residence_bg': 'ستظهر كخلفية لبطاقة الإقامة.'
             },
             'fr-DZ': {
                 'portal_title': 'Portail Étudiant',
@@ -209,11 +225,25 @@
                 'birth_place_label': 'Lieu de naissance (مكان الميلاد)',
                 'birth_date_label': 'Date de naissance (تاريخ الميلاد)',
                 'language_switch_label': 'Changer la langue (تغيير اللغة)',
+                'edit_info_button': 'Modifier les informations',
+                'edit_modal_title': 'Modifier les données du profil',
+                'edit_english_name_label': 'Nom en anglais',
+                'edit_birth_place_label': 'Lieu de naissance',
+                'edit_birth_date_label': 'Date de naissance',
+                'save_button': 'Enregistrer les changements',
+                'cancel_button': 'Annuler',
                 'logout_button': 'DÉCONNEXION',
                 'university_name': 'Ministère de l\'Enseignement Supérieur',
                 'university_name_profile': 'Université de Béjaïa',
-                'birth_place': 'Béjaïa',
-                'birth_date': '04/12/2005'
+                'student_card_button': 'Carte Étudiant',
+                'residence_card_button': 'Carte Résidence',
+                'remove_background': 'Supprimer le fond',
+                'change_profile_image': 'Changer la photo de profil:',
+                'note_image_shared': 'Note: L\'image est utilisée pour toutes les cartes.',
+                'change_student_bg': 'Changer le fond de la carte étudiant:',
+                'note_student_bg': 'Apparaîtra comme fond pour la carte étudiant.',
+                'change_residence_bg': 'Changer le fond de la carte résidence:',
+                'note_residence_bg': 'Apparaîtra comme fond pour la carte résidence.'
             }
         };
 
@@ -249,15 +279,111 @@
             }
 
             // 2. إعادة عرض الصفحة النشطة حالياً (عادةً الملف الشخصي)
-            // نحدد الزر النشط حالياً لإعادة التنقل إليه وتحديث الواجهة
             const activeNavButton = document.querySelector('.nav-item.active');
-            let screen = 'home';
+            let screen = 'profile'; // افتراضياً الملف الشخصي
             if (activeNavButton) {
                 // استخلاص اسم الشاشة من دالة navigate
-                screen = activeNavButton.getAttribute('onclick').match(/'([^']*)'/)[1];
+                const match = activeNavButton.getAttribute('onclick').match(/'([^']*)'/);
+                if (match) screen = match[1];
             }
             
             navigate(screen, activeNavButton);
+        }
+        
+        // ----------------------------------------------------------------------
+        // منطق تعديل الملف الشخصي (Profile Edit Logic)
+        // ----------------------------------------------------------------------
+
+        /**
+         * دالة لفتح نافذة التعديل (Modal)
+         */
+        function openEditProfileModal() {
+            // إزالة أي مودال سابق
+            const existingModal = document.getElementById('editProfileModal');
+            if (existingModal) existingModal.remove();
+
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            const directionClass = isRTL ? 'text-right' : 'text-left';
+
+            // إنشاء مودال HTML بسيط
+            const modalHtml = `
+                <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl transition-all duration-300 transform scale-95 opacity-0" id="editModalContent" dir="${isRTL ? 'rtl' : 'ltr'}">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 ${directionClass}">${t('edit_modal_title')}</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- الاسم بالإنجليزية -->
+                            <div class="${directionClass}">
+                                <label for="inputEnglishName" class="block text-sm font-medium text-gray-700">${t('edit_english_name_label')}</label>
+                                <input type="text" id="inputEnglishName" value="${userData.englishName}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
+                            </div>
+
+                            <!-- مكان الميلاد -->
+                            <div class="${directionClass}">
+                                <label for="inputBirthPlace" class="block text-sm font-medium text-gray-700">${t('edit_birth_place_label')}</label>
+                                <input type="text" id="inputBirthPlace" value="${userData.birthPlace}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
+                            </div>
+
+                            <!-- تاريخ الميلاد -->
+                            <div class="${directionClass}">
+                                <label for="inputBirthDate" class="block text-sm font-medium text-gray-700">${t('edit_birth_date_label')}</label>
+                                <input type="date" id="inputBirthDate" value="${userData.birthDate.split('-').reverse().join('-')}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex ${isRTL ? 'justify-end space-x-2 space-x-reverse' : 'justify-start space-x-2'} mt-6">
+                            <button onclick="saveProfileChanges()" class="bg-[--primary-green] text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition">
+                                ${t('save_button')}
+                            </button>
+                            <button onclick="document.getElementById('editProfileModal').remove()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-bold hover:bg-gray-400 transition">
+                                ${t('cancel_button')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // تطبيق تأثير الظهور
+            setTimeout(() => {
+                document.getElementById('editModalContent').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('editModalContent').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        /**
+         * دالة لحفظ التغييرات في بيانات المستخدم
+         */
+        function saveProfileChanges() {
+            const englishName = document.getElementById('inputEnglishName').value;
+            const birthPlace = document.getElementById('inputBirthPlace').value;
+            const birthDateISO = document.getElementById('inputBirthDate').value;
+
+            // تحويل تاريخ ISO إلى صيغة DD-MM-YYYY
+            let birthDateDisplay = userData.birthDate;
+            if (birthDateISO) {
+                const dateParts = birthDateISO.split('-'); // [YYYY, MM, DD]
+                birthDateDisplay = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // DD-MM-YYYY
+            }
+
+
+            // تحديث البيانات
+            userData.englishName = englishName.toUpperCase();
+            userData.birthPlace = birthPlace;
+            userData.birthDate = birthDateDisplay;
+
+            // إغلاق المودال
+            document.getElementById('editProfileModal').remove();
+
+            // إعادة عرض صفحة الملف الشخصي بالبيانات الجديدة
+            const activeNavButton = document.querySelector('.nav-item.active');
+            navigate('profile', activeNavButton);
+            
+            displayCustomMessage(
+                userData.currentLanguage === 'ar-DZ' ? 'نجاح' : 'Succès',
+                userData.currentLanguage === 'ar-DZ' ? 'تم حفظ معلومات الملف الشخصي بنجاح.' : 'Les informations du profil ont été enregistrées avec succès.',
+                'check-circle'
+            );
         }
         
         // ----------------------------------------------------------------------
@@ -389,14 +515,14 @@
             // إنشاء مودال HTML بسيط
             const modalHtml = `
                 <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" onclick="document.getElementById('customModal').remove()">
-                    <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl" onclick="event.stopPropagation()">
+                    <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl" onclick="event.stopPropagation()" dir="${userData.currentLanguage === 'ar-DZ' ? 'rtl' : 'ltr'}">
                         <div class="flex items-center justify-between mb-4 border-b pb-2">
                             <h3 class="text-xl font-bold text-gray-800">${title}</h3>
                             <i data-lucide="${iconName}" class="w-6 h-6 text-blue-600"></i>
                         </div>
                         <p class="text-gray-700 whitespace-pre-line">${message}</p>
                         <button class="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition" onclick="document.getElementById('customModal').remove()">
-                            حسناً
+                            ${userData.currentLanguage === 'ar-DZ' ? 'حسناً' : 'D\'accord'}
                         </button>
                     </div>
                 </div>
@@ -469,10 +595,10 @@
                     <!-- أزرار اختيار نوع البطاقة -->
                     <div class="flex bg-white rounded-xl shadow-md p-1">
                         <button id="btnStudentCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('student')">
-                            ${isRTL ? 'بطاقة الطالب' : 'Carte Étudiant'}
+                            ${t('student_card_button')}
                         </button>
                         <button id="btnResidenceCard" class="flex-1 py-2 rounded-lg font-bold text-sm transition-colors duration-200" onclick="displayCard('residence')">
-                            ${isRTL ? 'بطاقة الإقامة' : 'Carte Résidence'}
+                            ${t('residence_card_button')}
                         </button>
                     </div>
 
@@ -485,28 +611,28 @@
                     <div id="customizationControls" class="space-y-4">
                         <!-- خاصية رفع الصورة الشخصية (مستقلة) -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير الصورة الشخصية:' : 'Changer la photo de profil:'}</p>
+                            <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
                             <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ملاحظة: الصورة المستخدمة في جميع البطاقات.' : 'Note: L\'image est utilisée pour toutes les cartes.'}</p>
+                            <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
                         </div>
 
                         <!-- 1. خلفية بطاقة الطالب -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير خلفية بطاقة الطالب:' : 'Changer le fond de la carte étudiant:'}</p>
+                            <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
                             <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ستظهر كخلفية لبطاقة الطالب.' : 'Apparaîtra comme fond pour la carte étudiant.'}</p>
+                            <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
                             <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('student')">
-                                ${isRTL ? 'إزالة الخلفية' : 'Supprimer le fond'}
+                                ${t('remove_background')}
                             </button>
                         </div>
 
                         <!-- 2. خلفية بطاقة الإقامة -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
-                            <p class="text-sm font-bold text-gray-700">${isRTL ? 'تغيير خلفية بطاقة الإقامة:' : 'Changer le fond de la carte résidence:'}</p>
+                            <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
                             <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
-                            <p class="text-xs text-gray-500 mt-2">${isRTL ? 'ستظهر كخلفية لبطاقة الإقامة.' : 'Apparaîtra comme fond pour la carte résidence.'}</p>
+                            <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
                             <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition duration-150 mt-2" onclick="removeCardBackground('residence')">
-                                ${isRTL ? 'إزالة الخلفية' : 'Supprimer le fond'}
+                                ${t('remove_background')}
                             </button>
                         </div>
                     </div> <!-- نهاية customizationControls -->
@@ -689,7 +815,8 @@
             // تحديد اتجاه النص والحاويات
             const directionClass = isRTL ? 'text-right' : 'text-left';
             const itemMarginClass = isRTL ? 'ml-4' : 'mr-4'; // عكس الهامش الجانبي
-
+            
+            // التعديلات هنا: إضافة زر تعديل المعلومات
             const profileHtml = `
                 <!-- بطاقة الاسم والجامعة (الخضراء) -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white ${isRTL ? '' : 'flex-row-reverse'}">
@@ -702,12 +829,18 @@
                     </div>
                 </div>
 
+                <!-- زر تعديل المعلومات -->
+                <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 mb-4">
+                    <i data-lucide="edit" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
+                    ${t('edit_info_button')}
+                </button>
+
                 <!-- بطاقة مكان الميلاد -->
                 <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md">
                     <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
                     <div class="${directionClass} flex-grow">
                         <p class="text-sm font-medium text-gray-500">${t('birth_place_label')}</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${t('birth_place')}</p>
+                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthPlace}</p>
                     </div>
                 </div>
 
@@ -716,7 +849,7 @@
                     <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
                     <div class="${directionClass} flex-grow">
                         <p class="text-sm font-medium text-gray-500">${t('birth_date_label')}</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${t('birth_date')}</p>
+                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthDate}</p>
                     </div>
                 </div>
 
