@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Font: Inter is the default, but we'll prioritize system fonts for better Arabic rendering -->
+    <!-- Font: Almarai for better Arabic rendering -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap');
         :root {
@@ -31,18 +31,20 @@
 
         /* Ensure the app container simulates a mobile screen */
         #app-container {
-            max-width: 420px; /* iPhone 12 Pro Max width for accurate representation */
+            max-width: 420px;
             min-height: 100vh;
             margin: 0 auto;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             position: relative;
-            background-color: white; /* Inner app background */
+            background-color: white;
         }
+
+        /* --- Card Specific Styles (Matching the provided images) --- */
         
-        /* Custom styles for the intricate ID card design */
         .id-card-container {
             perspective: 1000px;
-            height: 400px; /* Fixed height for the flip effect */
+            /* Fixed aspect ratio to resemble the physical card - Adjusted slightly for content fitting */
+            height: 400px; 
             margin-top: 1rem;
         }
 
@@ -52,10 +54,11 @@
             position: relative;
             width: 100%;
             height: 100%;
-            border-radius: 1.5rem; /* rounded-3xl */
+            border-radius: 1.5rem;
             transition: transform 0.6s;
             transform-style: preserve-3d;
             cursor: pointer;
+            overflow: hidden; /* Important for clean edges */
         }
         
         /* Card Flip State */
@@ -71,15 +74,17 @@
             border-radius: 1.5rem;
             padding: 1.5rem;
             overflow: hidden;
+            direction: rtl; /* Ensure all text flows right-to-left unless overridden */
         }
 
         .card-front {
             z-index: 2;
             transform: rotateY(0deg);
+            background-color: white; 
         }
 
         .card-back {
-            background-color: #f7f7f7; /* Light background for the back */
+            background-color: #f7f7f7;
             transform: rotateY(180deg);
             display: flex;
             flex-direction: column;
@@ -89,38 +94,83 @@
             padding: 1.5rem;
         }
 
-        /* Wavy line effect on the ID card front */
-        .card-front::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: repeating-linear-gradient(90deg, transparent 0 1px, var(--color-primary-green) 1px 3px);
-            opacity: 0.1;
-            z-index: 0;
-        }
-
-        /* Green vertical wavy border on the right (Front face only) */
-        .card-front::after {
+        /* Right Wavy Border (Exactly like the images) - Only for default design */
+        .default-design::after {
             content: '';
             position: absolute;
             top: 0;
             right: 0;
-            width: 8px;
+            width: 10px;
             height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0 C 8 25, 0 75, 8 100' stroke='%2300A37A' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
-            background-repeat: repeat-y;
-            background-size: 8px 20px;
+            background-image: repeating-linear-gradient(
+                to top,
+                var(--color-primary-green) 0px,
+                var(--color-primary-green) 1px,
+                transparent 1px,
+                transparent 10px
+            );
+            background-size: 100% 10px;
+            opacity: 0.5;
+        }
+
+        /* Light Spotted/Dotted background - Only for default design */
+        .default-design::before {
+            content: '';
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            width: 150px;
+            height: 200px;
+            background-image: radial-gradient(circle, #00A37A 1px, rgba(0, 163, 122, 0) 1px);
+            background-size: 8px 8px;
+            opacity: 0.1;
+            transform: rotate(-90deg);
+        }
+
+        /* Specific text styling for the card details */
+        .card-text {
+            position: absolute;
+            font-size: 0.7rem; /* Adjusted for density */
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .card-label {
+            position: absolute;
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: #555;
+            white-space: nowrap;
         }
         
-        /* Specific card details alignment (Arabic text on the right) */
-        .card-detail-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            text-align: right;
+        /* Full Card Image Styles */
+        .full-card-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1.5rem;
+            z-index: 1; /* Below the long-press overlay */
+        }
+        .full-card-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+        
+        /* Ensure inputs blend into the profile card */
+        .profile-input-field {
+            background-color: transparent;
+            color: white;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0 0 2px 0;
+            transition: border-bottom-color 0.2s;
+        }
+        .profile-input-field:focus {
+            outline: none;
+            border-bottom: 1px solid white;
         }
 
         /* Style for the hidden input file field */
@@ -131,7 +181,7 @@
             cursor: pointer;
             width: 100%;
             height: 100%;
-            z-index: 10; /* Ensure it's clickable */
+            z-index: 10;
         }
 
     </style>
@@ -174,18 +224,20 @@
             name_ar: "بركاني أمياس",
             surname_ar: "بركاني",
             firstname_ar: "أمياس",
-            university_en: "université de béjaia",
-            university_ar: "جامعة بجاية",
+            university_en: "université de béjaia", 
+            university_ar: "جامعة بجاية", 
             dob: "2005-12-04", 
-            pob_ar: "بجاية",
+            pob_ar: "بجاية", 
             major_ar: "علوم الطبيعة والحياة",
             academic_year: "2025/2026",
-            id_student: "UN0601202525353025418",
+            id_student: "UN0601202525353025418", 
             id_residence: "4-203",
             card_residence_details: "يستفيد هذا الطالب من خدمات النقل",
             residence_building: "بريشاش 3",
             residence_room: "القمر",
             language: "ar-DZ", 
+            directorate: "مديرية الخدمات الجامعية بجاية القصر", 
+            directorate_residence: "بريشاش 3 - القمر", 
         };
 
         const HOME_SERVICES = [
@@ -205,22 +257,24 @@
         ];
 
         // --- State Management ---
-        let currentView = 'profile'; // Start on profile page to see the fix immediately
+        let currentView = 'cards'; 
         let currentCard = 'student'; // 'student' or 'residence'
         let isCardFlipped = false;
-        let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=صورة"; // Default profile image
-        let cardBackImageUrl = "https://placehold.co/380x380/00A37A/ffffff?text=صورة+خلفية"; // Default card back image
         
-        // Timer for long press logic
+        // State for custom images
+        let profileImageUrl = "https://placehold.co/96x96/444444/ffffff?text=صورة"; 
+        let cardBackImageUrl = "https://placehold.co/380x380/00A37A/ffffff?text=صورة+خلفية"; 
+        let studentCardFrontImageUrl = null; // Custom full front design for student card
+        let residenceCardFrontImageUrl = null; // Custom full front design for residence card
+        
+        // Timer for long press logic 
         let longPressTimer = null;
-        const LONG_PRESS_DURATION = 500; // milliseconds
+        const LONG_PRESS_DURATION = 500; // 0.5 seconds
 
         // --- Utility Functions ---
 
         /**
          * Renders the header for each view.
-         * @param {string} title - The title of the page.
-         * @param {boolean} showProfile - Whether to show the profile picture/icon (only on Home).
          */
         function renderHeader(title, showProfile = false) {
             const profileIcon = showProfile 
@@ -242,6 +296,7 @@
          */
         function updateNav(view) {
             document.querySelectorAll('.nav-item').forEach(item => {
+                const icon = item.querySelector('i');
                 if (item.dataset.view === view) {
                     item.classList.add('bg-primary-green', 'text-white');
                     item.classList.remove('text-white/70');
@@ -250,12 +305,11 @@
                     item.classList.add('text-white/70');
                 }
             });
-            // Re-render icons to match the screenshot style (filled for active, outline for inactive)
             lucide.createIcons();
         }
         
         /**
-         * Renders a standardized detail card for fields.
+         * Renders a standardized detail card for fields in the Profile View.
          */
         const detailCard = (icon, title, value, editable = false, type = 'text', id = '') => `
             <div class="bg-white rounded-xl p-4 mb-4 flex items-center shadow-md" style="direction: rtl;">
@@ -278,18 +332,17 @@
         // --- View Renderers ---
 
         function renderHomeView() {
+            // ... (Home view rendering logic remains the same) ...
             const header = renderHeader("بوابة الطالب", true);
             
+            // Simplified PROGRES logo block based on user image IMG_2863.jpg
             const logoBlock = `
                 <div class="bg-primary-green rounded-xl p-4 mb-6 shadow-md mt-2">
                     <div class="flex justify-center items-center h-20">
-                        <!-- Placeholder for PROGRES Logo - Using a simple text version -->
                         <div class="text-center">
                             <h2 class="text-white text-2xl font-bold">PROGRES</h2>
                             <p class="text-white text-xs mt-1">وزارة التعليم العالي والبحث العلمي</p>
                             <p class="text-white text-xs">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</p>
-                            <!-- Placeholder for flag -->
-                            <div class="absolute right-4 top-4 w-4 h-3 bg-white rounded-sm border border-white/50"></div>
                         </div>
                     </div>
                 </div>
@@ -311,147 +364,140 @@
             return header + logoBlock + content;
         }
         
+        /**
+         * Renders the card front, either with custom image or default design.
+         */
         function renderCardFront(type) {
             const isStudent = type === 'student';
+            const customImageUrl = isStudent ? studentCardFrontImageUrl : residenceCardFrontImageUrl;
 
-            // Government logo/text block (top left)
+            // Hidden input for full card image replacement (used by long press)
+            const hiddenFileInput = `
+                <input type="file" id="full-card-front-input" accept="image/*" class="profile-image-input" 
+                    onchange="handleImageChange(event, 'full_card_front')">
+            `;
+            
+            if (customImageUrl) {
+                // --- CUSTOM CARD DESIGN ---
+                // If a custom image is set, use it as the background image
+                return `
+                    <div class="card-face card-front relative p-0 overflow-hidden">
+                        <img src="${customImageUrl}" alt="Custom Card Front" class="full-card-image" />
+                        <!-- Add a transparent overlay to handle long press -->
+                        <div class="full-card-overlay"></div>
+                        ${hiddenFileInput}
+                    </div>
+                `;
+            }
+
+            // --- DEFAULT DETAILED DESIGN (If no custom image) ---
+            
             const governmentBlock = isStudent
                 ? `
-                    <div class="absolute top-6 right-6 flex flex-col items-end text-xs font-semibold leading-tight pr-10">
-                        <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                    <div class="absolute top-10 left-5 flex flex-col items-start text-[9px] font-semibold leading-tight text-right w-1/3">
+                        <p class="mb-1 text-[10px]">الجمهورية الجزائرية الديمقراطية الشعبية</p>
                         <p>وزارة التعليم العالي والبحث العلمي</p>
                         <p>مديرية الخدمات الجامعية</p>
-                        <p>${USER_DATA.university_ar}</p>
+                        <p class="font-bold text-black/90">${USER_DATA.university_ar}</p>
                     </div>
-                    <!-- Placeholder for Algerian Government Logo -->
-                    <div class="absolute top-6 left-6 w-8 h-8 rounded-full bg-primary-green opacity-80 border-2 border-white"></div>
+                    <!-- Placeholder for Algerian Government Logo - Top Right -->
+                    <div class="absolute top-8 right-6 w-8 h-8 rounded-full bg-red-600 border-2 border-green-600"></div>
                 `
                 : `
-                    <div class="absolute top-6 right-6 flex flex-col items-end text-xs font-semibold leading-tight pr-10">
-                        <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                    <div class="absolute top-10 left-5 flex flex-col items-start text-[9px] font-semibold leading-tight text-right w-1/3">
+                        <p class="mb-1 text-[10px]">الجمهورية الجزائرية الديمقراطية الشعبية</p>
                         <p>وزارة التعليم العالي والبحث العلمي</p>
-                        <p>مديرية الخدمات الجامعية بجاية القصر</p>
+                        <p class="font-bold text-black/90">${USER_DATA.directorate}</p>
                     </div>
-                    <!-- Placeholder for Algerian Government Logo -->
-                    <div class="absolute top-6 left-6 w-8 h-8 rounded-full bg-primary-green opacity-80 border-2 border-white"></div>
+                    <!-- Placeholder for Directorate Logo - Top Right -->
+                    <div class="absolute top-8 right-6 w-8 h-8 rounded-full bg-red-600 border-2 border-green-600"></div>
                 `;
 
-            // Card Title (Vertical, centered)
             const cardTitle = isStudent 
-                ? `<div class="absolute top-24 left-1/2 transform -translate-x-1/2 -rotate-90 origin-top-left text-3xl font-bold text-black/90">بطاقة الطالب</div>`
-                : `<div class="absolute top-24 left-1/2 transform -translate-x-1/2 -rotate-90 origin-top-left text-3xl font-bold text-black/90">بطاقة الإقامة</div>`;
+                ? `<div class="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 -rotate-90 origin-center text-4xl font-extrabold text-black/90 tracking-wider whitespace-nowrap">بطاقة الطالب</div>`
+                : `<div class="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 -rotate-90 origin-center text-4xl font-extrabold text-black/90 tracking-wider whitespace-nowrap">بطاقة الإقامة</div>`;
 
+            const longID = isStudent
+                ? `<div class="absolute top-[250px] right-[2px] transform -translate-y-1/2 -rotate-90 origin-top-right text-[10px] font-bold tracking-widest text-primary-green whitespace-nowrap">${USER_DATA.id_student}</div>`
+                : ``;
 
-            // Profile Image (Top Center)
-            // Added event listeners for long press simulation
+            const academicYear = `
+                <div class="absolute top-10 right-10 text-xs font-bold text-primary-green transform -rotate-90 origin-top-right whitespace-nowrap">
+                    السنة الجامعية ${USER_DATA.academic_year}
+                </div>
+            `;
+            
+            const qrCode = `
+                <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-20 h-20 p-1 bg-white border border-gray-300">
+                    <img src="https://placehold.co/80x80/1a1a1a/ffffff?text=QR" alt="QR Code" class="w-full h-full object-cover"/>
+                </div>
+            `;
+            
+            // Profile Image (Now clickable for short press only)
             const profileImage = `
-                <div id="card-image-wrapper" class="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200"
-                    ontouchstart="handleTouchStart(event, 'card-image-input')" 
-                    ontouchend="handleTouchEnd(event, 'card-image-input')"
-                    onmousedown="handleMouseDown(event, 'card-image-input')" 
-                    onmouseup="handleMouseUp(event, 'card-image-input')"
-                    onmouseout="handleMouseUp(event, 'card-image-input')">
+                <div id="card-image-wrapper" class="absolute top-10 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-200 cursor-pointer"
+                    onclick="document.getElementById('small-profile-image-input').click(); event.stopPropagation();">
                     
                     <img id="card-profile-img" src="${profileImageUrl}" alt="Student Photo" class="w-full h-full object-cover"/>
-                    <!-- Hidden Input field to change card image -->
-                    <input type="file" id="card-image-input" accept="image/*" class="profile-image-input" onchange="handleImageChange(event, 'profile')">
+                    <!-- Hidden Input field to change small profile image -->
+                    <input type="file" id="small-profile-image-input" accept="image/*" class="profile-image-input" 
+                        onchange="handleImageChange(event, 'profile')" onclick="event.stopPropagation();">
                 </div>
             `;
 
-            // Data Fields
-            const fieldLayout = isStudent ? `
-                <div class="absolute top-36 right-4 text-xs font-semibold text-right">
-                    <p class="mb-2">السنة الجامعية</p>
-                    <p class="text-sm font-bold text-primary-green">${USER_DATA.academic_year}</p>
-                    <p class="mt-4 text-sm font-bold tracking-widest text-primary-green transform rotate-90 origin-top-right whitespace-nowrap absolute right-0 top-1/2">${USER_DATA.id_student}</p>
-                </div>
+            const fields = isStudent 
+                ? `
+                    <!-- Row 1: Name and Surname (Vertical) -->
+                    <p class="card-text top-[150px] left-[130px] font-bold text-base">${USER_DATA.firstname_ar}</p>
+                    <p class="card-text top-[150px] left-[180px] font-bold text-base">${USER_DATA.surname_ar}</p>
+                    
+                    <!-- Row 2: Major & POB/DOB (Horizontal) -->
+                    <p class="card-text top-[200px] right-[20px] font-bold text-sm">${USER_DATA.major_ar}</p>
+                    <p class="card-text top-[200px] left-[150px] font-bold text-sm">${USER_DATA.dob}</p>
+                    <p class="card-text top-[200px] left-[200px] font-bold text-sm">${USER_DATA.pob_ar}</p>
 
-                <div class="absolute top-12 left-6 text-sm flex flex-col items-start font-semibold" style="direction: ltr; text-align: left;">
-                    <div class="mt-14 space-y-2">
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.firstname_ar}</span>
-                            <span>الإسم</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.surname_ar}</span>
-                            <span>اللقب</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.dob}</span>
-                            <span>تاريخ و مكان الميلاد</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold text-primary-green">${USER_DATA.major_ar}</span>
-                            <span>التخصص</span>
-                        </div>
-                    </div>
-                </div>
-            ` : `
-                <div class="absolute top-36 right-4 text-xs font-semibold text-right">
-                    <p class="text-sm font-bold text-primary-green mt-2">${USER_DATA.card_residence_details}</p>
-                </div>
+                    <!-- Labels for Horizontal Fields -->
+                    <p class="card-label top-[225px] right-[20px] text-primary-green">التخصص</p>
+                    <p class="card-label top-[225px] left-[140px] text-primary-green">تاريخ ومكان الميلاد</p>
+                    <p class="card-label top-[225px] left-[200px] text-primary-green">الميلاد</p>
+                ` 
+                : `
+                    <!-- Row 1: Name and Surname (Vertical) -->
+                    <p class="card-text top-[150px] left-[130px] font-bold text-base">${USER_DATA.firstname_ar}</p>
+                    <p class="card-text top-[150px] left-[180px] font-bold text-base">${USER_DATA.surname_ar}</p>
 
-                <div class="absolute top-12 left-6 text-sm flex flex-col items-start font-semibold" style="direction: ltr; text-align: left;">
-                    <div class="mt-14 space-y-2">
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.firstname_ar}</span>
-                            <span>الإسم</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.surname_ar}</span>
-                            <span>اللقب</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold">${USER_DATA.dob}</span>
-                            <span>تاريخ و مكان الميلاد</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="font-bold text-primary-green">${USER_DATA.residence_building} - ${USER_DATA.residence_room}</span>
-                            <span>الإقامة</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    <!-- Row 2: Residence Details (Horizontal) -->
+                    <p class="card-text top-[200px] right-[20px] font-bold text-sm">${USER_DATA.directorate_residence} - ${USER_DATA.id_residence}</p>
+                    <p class="card-text top-[200px] left-[150px] font-bold text-sm">${USER_DATA.pob_ar}</p>
+                    <p class="card-text top-[200px] left-[200px] font-bold text-sm">${USER_DATA.dob}</p>
 
-            // Common lower section (Name, QR, etc.)
-            const lowerSection = `
-                <div class="absolute bottom-16 w-full px-6 flex justify-between items-end text-xs font-semibold text-right">
-                    <div class="card-detail-item">
-                        <p class="font-bold text-sm">${USER_DATA.surname_ar}</p>
-                        <p>اللقب</p>
+                    <!-- Labels for Horizontal Fields -->
+                    <p class="card-label top-[225px] right-[20px] text-primary-green">الإقامة</p>
+                    <p class="card-label top-[225px] left-[140px] text-primary-green">تاريخ ومكان الميلاد</p>
+                    <p class="card-label top-[225px] left-[200px] text-primary-green">الميلاد</p>
+                    
+                    <!-- Residence Card Extra Info (Vertical Text) -->
+                    <div class="absolute top-[100px] left-[20px] text-[10px] text-center font-bold text-primary-green w-10">
+                        ${USER_DATA.card_residence_details.split(' ').join('<br>')}
                     </div>
-                    <div class="card-detail-item">
-                        <p class="font-bold text-sm">${USER_DATA.firstname_ar}</p>
-                        <p>الإسم</p>
-                    </div>
-                    <div class="card-detail-item">
-                        <p class="font-bold text-sm">${USER_DATA.name_en.split(' ')[1] || 'AMAYAS'}</p>
-                        <p>Prenom</p>
-                    </div>
-                    <div class="card-detail-item">
-                        <p class="font-bold text-sm">${USER_DATA.name_en.split(' ')[0] || 'BERKANI'}</p>
-                        <p>Nom</p>
-                    </div>
-                </div>
-
-                <!-- QR Code Placeholder -->
-                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-28 h-28 p-2 bg-white border border-gray-300">
-                    <img src="https://placehold.co/100x100/1a1a1a/ffffff?text=QR" alt="QR Code" class="w-full h-full object-cover"/>
-                </div>
-            `;
+                `;
 
             return `
-                <div class="card-face card-front relative">
+                <div class="card-face card-front relative default-design">
                     ${governmentBlock}
                     ${cardTitle}
+                    ${longID}
+                    ${academicYear}
                     ${profileImage}
-                    ${fieldLayout}
-                    ${lowerSection}
+                    ${fields}
+                    ${qrCode}
+                    ${hiddenFileInput}
                 </div>
             `;
         }
 
         function renderCardBack(type) {
+            // ... (Card back rendering logic remains the same) ...
             const isStudent = type === 'student';
             const backTitle = isStudent ? "الوجه الخلفي لبطاقة الطالب" : "الوجه الخلفي لبطاقة الإقامة";
 
@@ -488,16 +534,21 @@
                 </div>
             `;
             
-            // Note: Removed the standard click handler from id-card-container 
-            // to allow long-press detection on the card image itself.
+            // Event handlers for long press/short click are now in JS functions
             const cardContainer = `
-                <div id="id-card-container" class="id-card-container" onclick="handleCardClick(event)">
+                <div id="id-card-container" class="id-card-container" 
+                    ontouchstart="cardInteractionStart(event)" 
+                    ontouchend="cardInteractionEnd(event)"
+                    onmousedown="cardInteractionStart(event)" 
+                    onmouseup="cardInteractionEnd(event)"
+                    onmouseout="cardInteractionEnd(event)">
+                    
                     <div id="id-card" class="id-card ${isCardFlipped ? 'flipped' : ''}">
                         ${renderCardFront(currentCard)}
                         ${renderCardBack(currentCard)}
                     </div>
                 </div>
-                <p class="text-center text-gray-500 text-sm mt-3">انقر على البطاقة لقلبها. اضغط مطولاً على الصورة لتغييرها.</p>
+                <p class="text-center text-gray-500 text-sm mt-3">انقر لقلب البطاقة. اضغط مطولاً على الوجه الأمامي لتغييره.</p>
             `;
 
             const header = renderHeader("بطاقات الهوية");
@@ -506,10 +557,9 @@
         }
 
         function renderProfileView() {
-            // Header title is now based on the image provided in the user's context (My Profile / ملفي الشخصي)
+            // ... (Profile view rendering logic remains the same) ...
             const header = renderHeader("ملفي الشخصي");
 
-            // Profile Card (Now editable fields for Name)
             const editableProfileCard = `
                 <div class="bg-primary-green rounded-xl p-4 mb-4 flex items-center shadow-lg mt-2" style="direction: rtl;">
                     <!-- Profile Image container -->
@@ -520,37 +570,34 @@
                     <div class="mr-4 text-right text-white flex-grow">
                         <p class="text-xs font-light">الاسم بالإنجليزية (اللقب الاسم)</p>
                         <input type="text" id="edit-name-en" value="${USER_DATA.name_en}" placeholder="BERKANI AMAYAS" 
-                            class="bg-white/20 text-white text-lg font-bold w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors mb-2" 
+                            class="profile-input-field text-white text-lg font-bold w-full text-right mb-2" 
                             style="direction: ltr;">
                         
                         <p class="text-xs font-light mt-2">اللقب بالعربية</p>
                         <input type="text" id="edit-surname-ar" value="${USER_DATA.surname_ar}" placeholder="بركاني"
-                            class="bg-white/20 text-white text-base w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors mb-2">
+                            class="profile-input-field text-white text-base w-full text-right mb-2">
                         
                         <p class="text-xs font-light mt-2">الاسم بالعربية</p>
                         <input type="text" id="edit-firstname-ar" value="${USER_DATA.firstname_ar}" placeholder="أمياس"
-                            class="bg-white/20 text-white text-base w-full p-1 rounded-md text-right border border-transparent focus:border-white/50 transition-colors">
+                            class="profile-input-field text-white text-base w-full text-right">
+
+                        <p class="text-xs font-light mt-2">الجامعة بالإنجليزية</p>
+                        <input type="text" id="edit-university-en" value="${USER_DATA.university_en}" placeholder="université de béjaia"
+                            class="profile-input-field text-white text-base w-full text-right"
+                            style="direction: ltr;">
                     </div>
                 </div>
             `;
 
-            // University Card (Editable field - Added this based on the screenshot provided)
-            const editableUniversityCard = detailCard('school', 'الجامعة بالإنجليزية', USER_DATA.university_en, true, 'text', 'edit-university-en');
-
-            // Save Button - Calls the saveProfileChanges function
             const saveButton = `
                 <button id="save-button" class="bg-primary-green text-white w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all hover:bg-opacity-90 mb-4" onclick="saveProfileChanges()">
                     حفظ التغييرات
                 </button>
             `;
 
-            // Place of Birth Card (Editable field)
             const editablePOBCard = detailCard('map-pin', 'مكان الميلاد', USER_DATA.pob_ar, true, 'text', 'edit-pob-ar');
-
-            // Date of Birth Card (Editable field)
             const editableDOBCard = detailCard('cake', 'تاريخ الميلاد', USER_DATA.dob, true, 'date', 'edit-dob');
             
-            // Language Card (Editable field)
             const languageCard = `
                 <div class="bg-white rounded-xl p-4 mb-6 flex justify-between items-center shadow-md" style="direction: rtl;">
                     <div class="flex items-center">
@@ -576,7 +623,6 @@
 
             const content = `
                 ${editableProfileCard}
-                ${editableUniversityCard} <!-- New University Field -->
                 ${saveButton}
                 ${editablePOBCard}
                 ${editableDOBCard}
@@ -589,94 +635,46 @@
 
         // --- Card Interaction Logic ---
 
-        /**
-         * Clears any running long press timer.
-         */
         function clearLongPressTimer() {
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
             }
         }
-
+        
         /**
-         * Handles the start of a touch/mouse press (long press simulation).
-         * @param {Event} event - The touch or mouse event.
-         * @param {string} inputId - ID of the hidden file input to trigger.
+         * Starts the timer to detect a long press (full card image upload).
          */
-        function handleTouchStart(event, inputId) {
-            // Prevent default action (like scrolling) for touch events
-            if (event.type === 'touchstart') {
-                event.preventDefault(); 
+        function cardInteractionStart(event) {
+            // Prevent interference from nested elements (like the small profile image input)
+            if (event.target.closest('#card-image-wrapper') || event.target.id === 'full-card-front-input') {
+                return; 
             }
-            clearLongPressTimer(); // Clear any existing timer
             
-            // Start a new timer
+            clearLongPressTimer(); 
+            
             longPressTimer = setTimeout(() => {
-                const fileInput = document.getElementById(inputId);
+                const fileInput = document.getElementById('full-card-front-input');
                 if (fileInput) {
-                    fileInput.click(); // Trigger the file input click after duration
+                    fileInput.click();
                 }
-                longPressTimer = null; // Clear timer reference after execution
+                longPressTimer = null; // Clear timer after successful long press action
             }, LONG_PRESS_DURATION);
         }
 
         /**
-         * Handles the end of a touch/mouse press (long press simulation).
-         * @param {Event} event - The touch or mouse event.
-         * @param {string} inputId - ID of the hidden file input associated.
+         * Ends the interaction. If it was a short click/tap, flip the card.
          */
-        function handleTouchEnd(event, inputId) {
-            // If the timer is still running, it means it was a short click/tap, so we clear the timer
+        function cardInteractionEnd(event) {
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
+                longPressTimer = null;
+                // If the timer was cleared before it fired (short press), flip the card.
+                flipCard();
             }
+            // If longPressTimer is already null, it means the long press event fired and file dialog opened.
         }
 
-        /**
-         * Mouse equivalent for handleTouchStart
-         */
-        function handleMouseDown(event, inputId) {
-            // Only handle the primary mouse button (left click)
-            if (event.button !== 0) return; 
-            handleTouchStart(event, inputId);
-        }
-
-        /**
-         * Mouse equivalent for handleTouchEnd
-         */
-        function handleMouseUp(event, inputId) {
-            handleTouchEnd(event, inputId);
-        }
-
-
-        /**
-         * Handles click on the card container to flip the card.
-         * We need this wrapper to prevent the flip when the long-press starts.
-         */
-        function handleCardClick(event) {
-             // If a long press timer was initiated but not completed, it's a short tap, so we flip.
-             // If longPressTimer is null, the click came from a different element or was a normal tap.
-            
-            // Check if the click/tap originated from outside the image wrapper
-            const imageWrapper = document.getElementById('card-image-wrapper');
-            if (imageWrapper && imageWrapper.contains(event.target)) {
-                // If it originated from the image, we rely on the long-press logic
-                // If longPressTimer is not null here, it means it was a short tap on the image, so we ignore it.
-                if (longPressTimer) {
-                    clearLongPressTimer(); // Prevent file input from opening
-                    flipCard(); // Treat short tap on image as flip
-                }
-                return;
-            }
-            
-            // Flip the card if the click is anywhere else on the card or container
-            flipCard();
-        }
-
-        /**
-         * Flips the current card.
-         */
         function flipCard() {
             if (currentView !== 'cards') return; 
 
@@ -692,9 +690,7 @@
         }
 
         /**
-         * Handles the change event for image inputs (both profile and card back).
-         * @param {Event} event - The file input change event.
-         * @param {string} type - 'profile' for profile image (used on card front), 'back' for card back image.
+         * Handles image uploads for small profile picture, card back, and full card front.
          */
         function handleImageChange(event, type) {
             const file = event.target.files[0];
@@ -706,20 +702,23 @@
                 if (type === 'profile') {
                     profileImageUrl = url;
                     // Update all profile images across views
-                    const imgElements = document.querySelectorAll('#card-profile-img, #header-profile-img, #profile-card-img');
-                    imgElements.forEach(img => {
+                    document.querySelectorAll('#card-profile-img, #header-profile-img, #profile-card-img').forEach(img => {
                         img.src = profileImageUrl;
                     });
                 } else if (type === 'back') {
                     cardBackImageUrl = url;
-                    // Update the card back image display
-                    const backImg = document.getElementById('card-back-img-display');
-                    if (backImg) {
-                        backImg.src = cardBackImageUrl;
+                    document.getElementById('card-back-img-display').src = cardBackImageUrl;
+                } else if (type === 'full_card_front') {
+                    // Update the custom image state for the currently active card
+                    if (currentCard === 'student') {
+                        studentCardFrontImageUrl = url;
+                    } else if (currentCard === 'residence') {
+                        residenceCardFrontImageUrl = url;
                     }
+                    // Re-render the cards view to show the new background immediately
+                    showView('cards');
                 }
-                // Clear the input value so the same file can be selected again
-                event.target.value = ''; 
+                event.target.value = ''; // Clear file input
             };
             reader.readAsDataURL(file);
         }
@@ -728,68 +727,63 @@
          * Reads and saves changes from the Profile View form inputs to USER_DATA.
          */
         function saveProfileChanges() {
+            // ... (Save logic remains the same) ...
             const newSurname = document.getElementById('edit-surname-ar')?.value.trim();
             const newFirstname = document.getElementById('edit-firstname-ar')?.value.trim();
             const newNameEn = document.getElementById('edit-name-en')?.value.trim();
             const newPOB = document.getElementById('edit-pob-ar')?.value.trim();
             const newDOB = document.getElementById('edit-dob')?.value;
             const newLanguage = document.getElementById('edit-language')?.value;
-            const newUniversityEn = document.getElementById('edit-university-en')?.value.trim(); // Get new University value
+            const newUniversityEn = document.getElementById('edit-university-en')?.value.trim();
 
-            // Check if required inputs exist and are filled
             if (!newNameEn || !newSurname || !newFirstname || !newPOB || !newDOB || !newLanguage || !newUniversityEn) {
-                console.error("يرجى التأكد من ملء جميع الحقول المطلوبة (الاسم، الجامعة، مكان وتاريخ الميلاد، واللغة).");
-                // In a real app, display an error message on screen
+                console.error("يرجى التأكد من ملء جميع الحقول المطلوبة.");
                 return;
             }
 
-            // 1. Update Global Data
             USER_DATA.surname_ar = newSurname;
             USER_DATA.firstname_ar = newFirstname;
             USER_DATA.name_en = newNameEn; 
-            // Derive Arabic full name from components
             USER_DATA.name_ar = `${newSurname} ${newFirstname}`; 
             USER_DATA.pob_ar = newPOB;
             USER_DATA.dob = newDOB;
             USER_DATA.language = newLanguage;
-            USER_DATA.university_en = newUniversityEn; // Update University
-            // NOTE: university_ar is not editable on the profile page, so we keep the current value.
+            USER_DATA.university_en = newUniversityEn;
 
-            // 2. Re-render the current view to reflect the saved changes immediately
-            // The user requested to see the updated profile page immediately after saving.
+            if (newUniversityEn.toLowerCase().includes('bejaia')) {
+                USER_DATA.university_ar = "جامعة بجاية";
+            } else {
+                USER_DATA.university_ar = newUniversityEn; 
+            }
+
+            // Clear custom image if any text data changes, forcing fallback to default design
+            // if (studentCardFrontImageUrl || residenceCardFrontImageUrl) {
+            //     studentCardFrontImageUrl = null;
+            //     residenceCardFrontImageUrl = null;
+            // }
+
             showView('profile'); 
             
-            // Log for debugging and confirmation
             console.log("تم حفظ بيانات الملف الشخصي بنجاح.", USER_DATA);
         }
 
         // --- Main Logic ---
 
-        /**
-         * Switches the active view and re-renders the content.
-         */
         function showView(view) {
             currentView = view;
             const contentDiv = document.getElementById('main-content');
             
-            // Render the correct view content
             switch (view) {
                 case 'home':
                     contentDiv.innerHTML = renderHomeView();
-                    contentDiv.style.direction = 'rtl';
-                    document.documentElement.setAttribute('dir', 'rtl');
                     break;
                 case 'cards':
-                    isCardFlipped = false; 
+                    // Note: We intentionally don't reset isCardFlipped here for a better UX
                     contentDiv.innerHTML = renderCardsView();
-                    contentDiv.style.direction = 'rtl';
-                    document.documentElement.setAttribute('dir', 'rtl');
                     updateCardToggle(currentCard);
                     break;
                 case 'profile':
                     contentDiv.innerHTML = renderProfileView();
-                    contentDiv.style.direction = 'rtl';
-                    document.documentElement.setAttribute('dir', 'rtl');
                     break;
                 default:
                     contentDiv.innerHTML = `<div>View not found: ${view}</div>`;
@@ -800,20 +794,12 @@
             contentDiv.scrollTop = 0;
         }
         
-        /**
-         * Switches the active card within the 'cards' view.
-         */
         function switchCard(cardType) {
             currentCard = cardType;
             isCardFlipped = false; // Reset flip when switching card type
-            
-            // Use showView to fully re-render the cards content, ensuring all events are attached correctly
             showView('cards');
         }
         
-        /**
-         * Updates the visual style of the card toggle buttons.
-         */
         function updateCardToggle(activeCard) {
             const studentBtn = document.getElementById('toggle-student');
             const residenceBtn = document.getElementById('toggle-residence');
@@ -834,11 +820,9 @@
 
         // Initialize the app on page load
         window.onload = () => {
-            // Initial render: show the Profile view as requested for verification
             showView(currentView);
         };
     </script>
 
 </body>
 </html>
-
