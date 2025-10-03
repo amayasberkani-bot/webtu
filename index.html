@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الطالب | Student Portal</title>
+    
+    <!-- PWA Meta Tags for Installability (Simulated) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- يجب توفير ملف manifest.json للتشغيل الفعلي، ولكن هنا نكتفي بالتعريف لأغراض المحاكاة -->
+    <meta name="theme-color" content="#008060">
+    
     <!-- تحميل Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- تحميل مكتبة Lucide Icons لأيقونات واجهة المستخدم -->
@@ -200,6 +207,45 @@
             // 3. إعادة إنشاء أيقونات Lucide
             lucide.createIcons();
         }
+        
+        /**
+         * دالة لعرض رسالة مخصصة (تحل محل alert)
+         */
+        function displayCustomMessage(title, message, iconName) {
+            // إزالة أي مودال سابق لضمان عرض واحد فقط
+            const existingModal = document.getElementById('customModal');
+            if (existingModal) existingModal.remove();
+
+            // إنشاء مودال HTML بسيط
+            const modalHtml = `
+                <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" onclick="document.getElementById('customModal').remove()">
+                    <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-between mb-4 border-b pb-2">
+                            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+                            <i data-lucide="${iconName}" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <p class="text-gray-700 whitespace-pre-line">${message}</p>
+                        <button class="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition" onclick="document.getElementById('customModal').remove()">
+                            حسناً
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            lucide.createIcons();
+        }
+
+        /**
+         * دالة لعرض رسالة توضيحية حول تثبيت التطبيق (PWA)
+         */
+        function showInstallPrompt() {
+            const message = "لتثبيت هذا الموقع كتطبيق (PWA) على هاتفك:\n\n" +
+                            "1. انقر على قائمة المتصفح (عادةً الثلاث نقاط). \n" +
+                            "2. ابحث عن خيار 'الإضافة إلى الشاشة الرئيسية' أو 'تثبيت التطبيق'.";
+            
+            displayCustomMessage('تثبيت التطبيق', message, 'download');
+        }
+
 
         // ----------------------------------------------------------------------
         // 1. شاشة الرئيسية (Home Screen) 
@@ -425,7 +471,7 @@
         }
 
         /**
-         * دالة مساعدة لتوليد محتوى البطاقة بناءً على النوع
+         * دالة مساعدة لتوليد محتوى البطاقة بناءً على النوع (الآن فارغة تمامًا)
          */
         function updateCardContent(type, cardDisplayArea) {
             let cardHtml = '';
@@ -440,7 +486,7 @@
                 ? `style="background-image: url('${cardBackground}'); background-size: cover; background-position: center;"` 
                 : '';
 
-            // تم إزالة المحتوى بالكامل لإنشاء بطاقة فارغة تمامًا
+            // تصميم البطاقة الفارغة مع الخلفية والنقوش
             cardHtml = `
                 <!-- البطاقة الفارغة (Hollow Card) -->
                 <div id="idCard" class="id-card-container bg-white rounded-2xl p-3 shadow-2xl relative overflow-hidden" ${backgroundStyle}>
@@ -511,6 +557,14 @@
                         en-DZ
                     </button>
                 </div>
+                
+                <!-- زر التحميل كتطبيق (الجديد) -->
+                <button class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition duration-150 mt-4" onclick="showInstallPrompt()">
+                    <div class="flex items-center justify-center">
+                        <i data-lucide="download" class="w-6 h-6 ml-2"></i>
+                        <span>تحميل الموقع كـ تطبيق</span>
+                    </div>
+                </button>
 
                 <!-- زر تسجيل الخروج -->
                 <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
