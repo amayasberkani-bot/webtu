@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -88,7 +88,7 @@
         /* تعديل شريط التنقل ليعمل بشكل صحيح مع التوسيع الأفقي للعنصر النشط */
         .nav-bar-container {
             display: flex;
-            justify-content: space-around;
+            justify-content.center;
             width: 100%;
         }
         
@@ -195,11 +195,20 @@
     <!-- الحاوية الرئيسية للتطبيق، محددة بأقصى عرض للهاتف (max-w-md) لتبدو كالتطبيق الأصلي -->
     <div id="app" class="w-full max-w-md h-screen-safe flex flex-col bg-gray-100 overflow-hidden">
 
-        <!-- رأس الصفحة (Header) -->
+        <!-- رأس الصفحة (Header) - تم تعديل الهيكل لثلاثة أجزاء -->
         <header id="header" class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
-            <h1 id="header-title" class="text-xl font-bold text-gray-800">بوابة الطالب</h1>
-            <!-- شعار الملف الشخصي الصغير في الركن العلوي الأيمن -->
-            <img id="profileImageHeader" src="https://placehold.co/40x40/00A381/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
+            <!-- حاوية الإجراءات اليسرى (Left Actions) -->
+            <div id="header-left-actions" class="w-10 flex items-center">
+                <!-- الإجراءات هنا -->
+            </div>
+            
+            <!-- عنوان الصفحة (Title - Centered) -->
+            <h1 id="header-title" class="text-xl font-bold text-gray-800 flex-grow text-center">بوابة الطالب</h1>
+            
+            <!-- حاوية الإجراءات اليمنى (Right Actions) -->
+            <div id="header-right-actions" class="w-10 flex justify-end items-center">
+                <img id="profileImageHeader" src="https://placehold.co/40x40/00A381/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
+            </div>
         </header>
 
         <!-- محتوى الصفحة (Content) -->
@@ -247,6 +256,14 @@
     <!-- جلب الأيقونات بعد تحميل DOM ومنطق التطبيق -->
     <script>
         
+        // جلب العناصر الثابتة في الهيكل الجديد للـ Header
+        const headerTitle = document.getElementById('header-title');
+        const headerLeftActions = document.getElementById('header-left-actions');
+        const headerRightActions = document.getElementById('header-right-actions');
+        const contentArea = document.getElementById('content');
+        const navItems = document.querySelectorAll('.nav-item');
+        const htmlElement = document.querySelector('html'); 
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
@@ -254,11 +271,6 @@
             const initialButton = document.querySelector('.nav-item.active');
             navigate('home', initialButton, true); 
         });
-
-        const headerTitle = document.getElementById('header-title');
-        const contentArea = document.getElementById('content');
-        const navItems = document.querySelectorAll('.nav-item');
-        const htmlElement = document.querySelector('html'); // للتحكم في اتجاه الصفحة
 
         // ----------------------------------------------------------------------
         // بيانات المستخدم الافتراضية
@@ -273,7 +285,7 @@
             year: "2025/2026",
             residenceInfo: "برشيش 3 - القسم: بجاية - الجناح والغرفة: 4-203", // بيانات بطاقة الإقامة
             matricule: "UN0601202525353025418",
-            idCardImage: "https://placehold.co/100x120/00A381/ffffff?text=صورة+شخصية", // رابط الصورة الشخصية الافتراضي
+            idCardImage: "https://placehold.co/40x40/00A381/ffffff?text=U", // رابط الصورة الشخصية الافتراضي
             studentCardBackground: null, 
             residenceCardBackground: null, 
             currentCardType: 'student', // الافتراضي هو بطاقة الطالب
@@ -335,59 +347,61 @@
                 // نصوص البطاقات
                 'card_student_id': 'بطاقة الطالب',
                 'card_residence_id': 'بطاقة الإقامة الجامعية',
+                'card_screen_title': 'البطاقات', // العنوان الثابت لشاشة البطاقات
             },
-            'fr-DZ': {
-                'portal_title': 'Portail Étudiant',
-                'nav_home': 'Accueil',
-                'nav_cards': 'Cartes',
-                'nav_profile': 'Profil',
-                'profile_title': 'Profil',
-                'birth_place_label': 'Lieu de naissance (مكان الميلاد)',
-                'birth_date_label': 'Date de naissance (تاريخ الميلاد)',
-                'language_switch_label': 'Changer la langue (تغيير اللغة)',
-                'edit_info_button': 'Modifier les informations',
-                'edit_modal_title': 'Modifier les données du profil',
-                'edit_english_name_label': 'Nom en anglais',
-                'edit_birth_place_label': 'Lieu de naissance',
-                'edit_birth_date_label': 'Date de naissance',
-                'save_button': 'Enregistrer les changements',
-                'cancel_button': 'Annuler',
-                'logout_button': 'DÉCONNEXION',
-                'university_name': 'Ministère de l\'Enseignement Supérieur',
-                'university_name_profile': 'Université de Béjaïa',
-                'student_card_button': 'Carte Étudiant',
-                'residence_card_button': 'Carte Résidence',
-                'remove_background': 'Supprimer le fond',
-                'change_profile_image': 'Changer la photo de profil:',
-                'note_image_shared': 'Note: L\'image est utilisée pour toutes les cartes.',
-                'change_student_bg': 'Changer le fond de la carte étudiant:',
-                'note_student_bg': 'Apparaîtra comme fond pour la carte étudiant.',
-                'change_residence_bg': 'Changer le fond de la carte résidence:',
-                'note_residence_bg': 'Apparaîtra comme fond pour la carte résidence.',
-                'customization_title': 'Outils de personnalisation (Customize Tools)',
-                'show_inputs': 'Afficher les champs customisation',
-                'hide_inputs': 'Masquer les champs customisation',
-                'success': 'Succès',
-                'save_success_message': 'Les informations du profil ont été enregistrées avec succès.',
+            'en-US': { // تم تغيير المفتاح من fr-DZ إلى en-US
+                'portal_title': 'Student Portal',
+                'nav_home': 'Home',
+                'nav_cards': 'Cards',
+                'nav_profile': 'Profile',
+                'profile_title': 'Profile',
+                'birth_place_label': 'Place of Birth (مكان الميلاد)',
+                'birth_date_label': 'Date of Birth (تاريخ الميلاد)',
+                'language_switch_label': 'Change Language (تغيير اللغة)',
+                'edit_info_button': 'Edit Information',
+                'edit_modal_title': 'Edit Profile Data',
+                'edit_english_name_label': 'Name in English',
+                'edit_birth_place_label': 'Place of Birth',
+                'edit_birth_date_label': 'Date of Birth',
+                'save_button': 'Save Changes',
+                'cancel_button': 'Cancel',
+                'logout_button': 'LOGOUT',
+                'university_name': 'Ministry of Higher Education and Scientific Research',
+                'university_name_profile': 'University of Bejaia',
+                'student_card_button': 'Student Card',
+                'residence_card_button': 'Residence Card',
+                'remove_background': 'Remove Background',
+                'change_profile_image': 'Change Profile Picture:',
+                'note_image_shared': 'Note: The image is used for all cards.',
+                'change_student_bg': 'Change Student Card Background:',
+                'note_student_bg': 'Will appear as background for the student card.',
+                'change_residence_bg': 'Change Residence Card Background:',
+                'note_residence_bg': 'Will appear as background for the residence card.',
+                'customization_title': 'Customize Tools',
+                'show_inputs': 'Show Customization Fields',
+                'hide_inputs': 'Hide Customization Fields',
+                'success': 'Success',
+                'save_success_message': 'Profile information saved successfully.',
 
                 // تحديث نصوص الأزرار لتتناسب مع الصورة المرفقة
-                'tile_discharge': 'Discharge',
+                'tile_discharge': 'Transcripts',
                 'tile_timetable': 'Timetable',
                 'tile_group_section': 'Group and Section',
                 'tile_exams_schedule': 'Exams Schedule',
                 'tile_exam_grades': 'Exam Grades',
                 'tile_assessment': 'Assessment',
                 'tile_percentage': 'Percentage (%)',
-                'tile_academic_transcripts': 'Academic transcripts',
+                'tile_academic_transcripts': 'Academic Transcripts',
                 'tile_debts': 'Debts',
-                'tile_academic_vacation': 'Academic vacation',
+                'tile_academic_vacation': 'Academic Vacation',
                 'tile_enrollments': 'Enrollments',
                 'tile_restauration': 'Restoration',
-                'tile_other_services': 'Other services',
+                'tile_other_services': 'Other Services',
                 
                 // نصوص البطاقات
-                'card_student_id': 'Carte Étudiant',
-                'card_residence_id': 'Carte de Résidence Universitaire',
+                'card_student_id': 'Student ID Card',
+                'card_residence_id': 'University Residence Card',
+                'card_screen_title': 'My Card', // العنوان الثابت لشاشة البطاقات
             }
         };
 
@@ -407,10 +421,10 @@
          * دالة لتبديل اللغة وتحديث اتجاه الواجهة بالكامل
          */
         function toggleLanguage() {
-            // 1. التبديل بين العربية والفرنسية
+            // 1. التبديل بين العربية (ar-DZ) والإنجليزية (en-US)
             if (userData.currentLanguage === 'ar-DZ') {
-                userData.currentLanguage = 'fr-DZ';
-                htmlElement.setAttribute('lang', 'fr');
+                userData.currentLanguage = 'en-US';
+                htmlElement.setAttribute('lang', 'en');
                 htmlElement.setAttribute('dir', 'ltr');
                 document.getElementById('app').classList.add('text-left');
                 document.getElementById('app').classList.remove('text-right');
@@ -591,7 +605,7 @@
                     newCardType = 'student';
                 }
             } else {
-                // LTR (الفرنسية): السحب لليمين هو التالي، لليسار هو السابق
+                // LTR (الإنجليزية): السحب لليمين هو التالي، لليسار هو السابق
                 if (userData.currentCardType === 'student' && direction === 'right') {
                     newCardType = 'residence';
                 } else if (userData.currentCardType === 'residence' && direction === 'left') {
@@ -700,20 +714,76 @@
 
             if (screen === 'home') {
                 renderHome();
-                headerTitle.textContent = t('portal_title');
             } else if (screen === 'cards') {
                 renderCards();
-                headerTitle.textContent = t('nav_cards');
             } else if (screen === 'profile') {
                 renderProfile();
-                headerTitle.textContent = t('nav_profile');
             }
 
-            // 3. إعادة إنشاء أيقونات Lucide
+            // 3. تحديث محتوى شريط العنوان بناءً على الشاشة
+            updateHeaderContent(screen);
+
+            // 4. إعادة إنشاء أيقونات Lucide
             lucide.createIcons();
             
-            // 4. تحديث النصوص في شريط التنقل السفلي
+            // 5. تحديث النصوص في شريط التنقل السفلي
             updateNavText();
+        }
+
+        /**
+         * دالة لتحديث محتوى شريط العنوان (Header) بناءً على الشاشة
+         * @param {string} screen - الشاشة الحالية ('home', 'cards', 'profile')
+         */
+        function updateHeaderContent(screen) {
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            
+            // إعادة ضبط الأجزاء
+            headerLeftActions.innerHTML = '';
+            headerRightActions.innerHTML = '';
+            // إزالة فئات المحاذاة الشائعة لإعادة تطبيقها بناءً على الشاشة
+            headerTitle.classList.remove('text-center', 'text-right', 'text-left', 'flex-grow');
+            
+            // صورة الملف الشخصي
+            const profileImageHtml = `
+                <img id="profileImageHeader" 
+                     src="${userData.idCardImage}" 
+                     onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" 
+                     alt="${isRTL ? 'ملف شخصي' : 'Profile'}" 
+                     class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
+            `;
+
+            if (screen === 'cards') {
+                // شريط البطاقات: العنوان "البطاقات" في المنتصف فقط، بدون أزرار جانبية
+                
+                // 1. العنوان المركزي: اسم الشاشة الثابت
+                headerTitle.textContent = t('card_screen_title'); // "البطاقات"
+                headerTitle.classList.add('text-center', 'flex-grow');
+
+                // 2. مسح الإجراءات الجانبية تمامًا
+                headerLeftActions.innerHTML = '';
+                headerRightActions.innerHTML = '';
+
+            } else {
+                // الشاشة الرئيسية والملف الشخصي: [Title] - [Profile Image] (الأصلي)
+                
+                // 1. العنوان
+                headerTitle.textContent = screen === 'home' ? t('portal_title') : t('nav_profile');
+                headerTitle.classList.add('flex-grow');
+                
+                if (isRTL) {
+                    // RTL: (Left-Action: Profile) | (Center-Title: Aligned Right) | (Right-Action: Empty)
+                    headerTitle.classList.add('text-right');
+                    headerLeftActions.innerHTML = profileImageHtml;
+                    headerRightActions.innerHTML = '';
+                } else {
+                    // LTR: (Left-Action: Empty) | (Center-Title: Aligned Left) | (Right-Action: Profile)
+                    headerTitle.classList.add('text-left');
+                    headerLeftActions.innerHTML = '';
+                    headerRightActions.innerHTML = profileImageHtml;
+                }
+            }
+            
+            lucide.createIcons(); // لتفعيل أي أيقونات جديدة
         }
         
         // دالة مساعدة لتحديث نصوص شريط التنقل
@@ -731,17 +801,21 @@
             const existingModal = document.getElementById('customModal');
             if (existingModal) existingModal.remove();
 
+            // تحديد اللغة والاتجاه
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            const confirmText = isRTL ? 'حسناً' : 'OK';
+
             // إنشاء مودال HTML بسيط
             const modalHtml = `
                 <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4" onclick="document.getElementById('customModal').remove()">
-                    <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl" onclick="event.stopPropagation()" dir="${userData.currentLanguage === 'ar-DZ' ? 'rtl' : 'ltr'}">
+                    <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl" onclick="event.stopPropagation()" dir="${isRTL ? 'rtl' : 'ltr'}">
                         <div class="flex items-center justify-between mb-4 border-b pb-2">
                             <h3 class="text-xl font-bold text-gray-800">${title}</h3>
                             <i data-lucide="${iconName}" class="w-6 h-6 text-blue-600"></i>
                         </div>
                         <p class="text-gray-700 whitespace-pre-line">${message}</p>
                         <button class="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition" onclick="document.getElementById('customModal').remove()">
-                            ${userData.currentLanguage === 'ar-DZ' ? 'حسناً' : 'D\'accord'}
+                            ${confirmText}
                         </button>
                     </div>
                 </div>
@@ -766,8 +840,8 @@
                 { titleKey: 'tile_percentage', icon: 'pie-chart' },
                 { titleKey: 'tile_academic_transcripts', icon: 'folder-open' },
                 { titleKey: 'tile_debts', icon: 'calculator' },
-                { titleKey: 'tile_academic_vacation', icon: 'archive' },
-                { tileKey: 'tile_enrollments', icon: 'book-open' },
+                { tileKey: 'tile_academic_vacation', icon: 'archive' },
+                { titleKey: 'tile_enrollments', icon: 'book-open' },
                 { titleKey: 'tile_restauration', icon: 'utensils' },
                 { titleKey: 'tile_other_services', icon: 'grid' },
             ];
@@ -836,6 +910,8 @@
             contentArea.classList.add('flex', 'flex-col', 'items-center', 'justify-start');
             contentArea.classList.remove('p-4', 'space-y-4'); 
 
+            const isRTL = userData.currentLanguage === 'ar-DZ';
+            
             const cardsHtml = `
                 <div class="w-full max-w-sm p-4 space-y-4">
                     
@@ -846,8 +922,8 @@
 
                     <div class="p-4 text-center text-gray-500 text-sm">
                         <!-- تذكير للمستخدم بكيفية التبديل -->
-                        <i data-lucide="chevrons-left-right" class="w-5 h-5 inline-block mx-2"></i>
-                        <span>${userData.currentLanguage === 'ar-DZ' ? 'اسحب البطاقة لليمين أو اليسار للتبديل' : 'Swipe card left or right to switch'}</span>
+                        <i data-lucide="chevrons-left-right" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
+                        <span>${isRTL ? 'اسحب البطاقة لليمين أو اليسار للتبديل' : 'Swipe card left or right to switch'}</span>
                     </div>
 
                 </div>
@@ -856,7 +932,7 @@
             contentArea.innerHTML = cardsHtml;
 
             // عرض البطاقة الافتراضية (بطاقة الطالب)
-            displayCard('student', true);
+            displayCard(userData.currentCardType, true);
             
             // **تفعيل كشف التمرير على منطقة عرض البطاقة**
             const cardDisplayArea = document.getElementById('cardDisplayArea');
@@ -963,13 +1039,21 @@
             // 4. تحديث حالة نوع البطاقة الحالية بعد اكتمال الحركة
             setTimeout(() => {
                  userData.currentCardType = type;
+                 
+                 // ** تحديث عنوان الهيدر (لا يتغير في شاشة البطاقات)
+                 // لكن هذه الوظيفة تبقى هنا تحسبا لأي توسع مستقبلي يتطلب تحديث
+                 const currentScreen = document.querySelector('.nav-item.active').getAttribute('onclick').match(/'([^']*)'/)[1];
+                 if (currentScreen === 'cards') {
+                     updateHeaderContent('cards');
+                 }
+                 
             }, skipAnimation ? 0 : 600); // 600ms هي مدة الحركة
 
             lucide.createIcons(); // لإنشاء أي أيقونات جديدة داخل البطاقة
         }
 
         /**
-         * دالة مساعدة لتوليد محتوى بطاقة الطالب أو الإقامة (تم جعلها فارغة بناءً على طلب المستخدم)
+         * دالة مساعدة لتوليد محتوى بطاقة الطالب أو الإقامة (فارغة)
          */
         function updateCardContent(type, cardElement) {
             
@@ -992,12 +1076,12 @@
                 cardElement.style.backgroundColor = defaultBgColor;
             }
             
-            // المحتوى الفارغ تماماً (تمت إزالة كل النصوص والأيقونات)
+            // المحتوى الفارغ تماماً
             const content = `
                 <div class="relative z-20 w-full h-full">
-                    <!-- تم إزالة أي محتوى مرئي هنا لترك البطاقة فارغة تماماً -->
+                    <!-- محتوى البطاقة فارغ تماماً -->
                 </div>
-                <!-- طبقة التعتيم تبقى موجودة إذا كانت هناك خلفية مخصصة لضمان رؤية الحواف -->
+                <!-- طبقة التعتيم تبقى موجودة إذا كانت هناك خلفية مخصصة -->
                 ${cardBackground ? '<div class="card-overlay opacity-20"></div>' : ''}
                 <!-- نمط النقاط الخفيف يبقى للخلفية البيضاء الافتراضية لتبدو كبطاقة ورقية -->
                 ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
@@ -1024,7 +1108,7 @@
             const profileHtml = `
                 <!-- بطاقة الاسم والجامعة (الخضراء) -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white ${isRTL ? '' : 'flex-row-reverse'}">
-                    <img id="profileImageCard" src="${userData.idCardImage}" alt="صورة المستخدم" class="w-14 h-14 rounded-full object-cover border-2 border-white ${itemMarginClass}">
+                    <img id="profileImageCard" src="${userData.idCardImage}" alt="${isRTL ? 'صورة المستخدم' : 'User Image'}" class="w-14 h-14 rounded-full object-cover border-2 border-white ${itemMarginClass}">
                     <div class="${directionClass} flex-grow">
                         <!-- الاسم بالإنجليزية ثابت -->
                         <p class="text-lg font-bold">${userData.englishName}</p>
@@ -1042,7 +1126,7 @@
                 <!-- بطاقة مكان الميلاد -->
                 <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md">
                     <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="${directionClass} flex-grow">
+                    <div class="directionClass} flex-grow">
                         <p class="text-sm font-medium text-gray-500">${t('birth_place_label')}</p>
                         <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthPlace}</p>
                     </div>
@@ -1065,7 +1149,7 @@
                     </div>
                     <!-- الزر يستدعي دالة التبديل ويظهر اللغة الحالية -->
                     <button id="languageButton" onclick="toggleLanguage()" class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
-                        ${userData.currentLanguage}
+                        ${userData.currentLanguage === 'ar-DZ' ? 'English' : 'العربية'}
                     </button>
                 </div>
                 
@@ -1120,7 +1204,6 @@
                         </div>
                     </div> <!-- نهاية imageInputsContainer -->
                 </div> <!-- نهاية customizationControls -->
-                <!-- ********************************************** -->
                 
                 <!-- زر تسجيل الخروج -->
                 <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
