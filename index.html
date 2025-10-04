@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الطالب | Student Portal</title>
     
-    <!-- تحميل Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- تحميل مكتبة Lucide Icons لأيقونات واجهة المستخدم -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* خط إنتر (Inter) هو خط حديث وواضح يناسب التصميم */
@@ -28,75 +26,87 @@
         /* الألوان والثوابت - تم تحديثها لتطابق الألوان في الصورة بدقة */
         :root {
             --primary-green: #2E8B57; /* اللون الأخضر الداكن للملف الشخصي */
-            --tile-bg: #00A381; /* لون أزرار الصفحة الرئيسية */
+            --tile-bg: #00A381; /* لون أزرار الصفحة الرئيسية والأيقونة النشطة */
             --nav-bg: #353B47; /* لون الشريط السفلي (كحلي/رمادي غامق) */
             --logout-red: #dc2626; /* لون الأحمر للخروج - red-600 */
         }
 
-        /* تصميم زر القائمة السفلية */
-        .nav-item .icon {
-            color: #a0aec0; /* لون الرمادي الافتراضي */
-            /* إضافة انتقال سلس لتغيير اللون */
-            transition: color 0.3s ease-in-out; 
-        }
-        .nav-item .bg-active {
-            /* إضافة انتقال سلس للخلفية والتظليل */
-            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        
-        /* التعديل هنا: لجعله مربعاً بزوايا غير حادة (xl) بدلاً من دائري (full) - التعديل السابق */
-        .nav-item .bg-default {
-            padding: 0.75rem; /* p-3 */
-            border-radius: 9999px; /* rounded-full (دائري) */
-        }
-
-        /* حالة النشاط (Active State) */
-        .nav-item.active .icon {
-            color: #ffffff;
-        }
-        .nav-item.active .bg-active {
-            background-color: var(--tile-bg); /* استخدام لون أزرار الشاشة الرئيسية للأيقونة النشطة */
-            /* تطبيق التنسيق المربع الجديد */
-            border-radius: 0.75rem; /* rounded-xl (لتكبير الزوايا قليلاً) */
-            padding: 1rem; /* p-4 (لتكبير المنطقة الخضراء) */
-            box-shadow: none;
-            transform: none; 
-        }
-
-        /* تعديل تصميم أزرار القائمة السفلية ليتوافق مع الشكل الجديد */
-        .nav-button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 0.5rem; /* p-2 */
-            width: 100%; /* لضمان توزيع متساوي */
-        }
-        /* إخفاء النص تحت الأيقونة النشطة */
-        .nav-item.active .nav-text {
-            display: none;
-        }
-        /* تعديل ترتيب العناصر ليتطابق مع الصورة (الأيقونة أولاً ثم النص، ولكن النص مخفي في حالة النشاط) */
-        .nav-item {
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            min-height: 4.5rem; /* ارتفاع تقريبي لشريط التنقل */
-            padding: 0 0.5rem;
-            flex-grow: 1;
-        }
-        /* تعديل شريط التنقل ليعمل بشكل صحيح مع التوسيع الأفقي للعنصر النشط */
-        .nav-bar-container {
-            display: flex;
-            justify-content.center;
-            width: 100%;
-        }
-        
         /* لضمان أن التطبيق يملأ الشاشة بالكامل على الجوالات الحديثة (بما في ذلك المساحات الآمنة) */
         .h-screen-safe {
             height: 100vh;
             height: 100svh; /* استخدام svh للأجهزة الحديثة للارتفاع الآمن */
         }
+
+        /* ---------------------------------------------------------------------- */
+        /* START: New Bottom Navigation Bar Styles */
+        /* ---------------------------------------------------------------------- */
+
+        /* تعديلات على حاوية الشريط الرئيسية لمنح مساحة للزر المرتفع */
+        nav.bg-\[\--nav-bg\] {
+            padding-top: 16px; /* توفير مساحة في الأعلى لارتفاع الزر */
+            overflow: hidden; /* إخفاء أي أجزاء قد تبرز من الجوانب */
+        }
+        
+        /* الحاوية الداخلية للأزرار */
+        .nav-bar-container {
+            display: flex;
+            justify-content: space-around; /* توزيع الأزرار بمسافات متساوية */
+            align-items: flex-end; /* محاذاة الأزرار للأسفل لتأثير الارتفاع */
+            width: 100%;
+        }
+
+        /* النمط الأساسي لكل زر في الشريط */
+        .nav-item {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            flex: 1; /* جعل الأزرار تأخذ مساحة متساوية */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* حركة نطاطة لتأثير الارتفاع */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #a0aec0; /* اللون الرمادي الافتراضي للأيقونة والنص */
+        }
+        
+        /* الغلاف الداخلي الذي يحتوي على الأيقونة والنص */
+        .nav-item > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem; /* rounded-2xl */
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* تنسيق النص داخل الزر */
+        .nav-item .nav-text {
+            font-size: 0.75rem; /* text-xs */
+            margin-top: 4px; /* mt-1 */
+        }
+
+        /* --- حالة الزر النشط (Active State) --- */
+        .nav-item.active {
+            transform: translateY(-16px); /* رفع الزر النشط للأعلى */
+        }
+
+        /* تطبيق الخلفية والظل على الغلاف الداخلي للزر النشط */
+        .nav-item.active > div {
+            background-color: var(--tile-bg); /* استخدام اللون الأخضر */
+            box-shadow: 0 5px 15px rgba(0, 163, 129, 0.4); /* ظل متناسق مع اللون الأخضر */
+        }
+        
+        /* تغيير لون الأيقونة والنص للون الأبيض في الزر النشط */
+        .nav-item.active,
+        .nav-item.active .icon {
+            color: #ffffff;
+        }
+        
+        /* ---------------------------------------------------------------------- */
+        /* END: New Bottom Navigation Bar Styles */
+        /* ---------------------------------------------------------------------- */
+
 
         /* ---------------------------------------------------------------------- */
         /* أنماط البطاقة والتقليب (Card & Flip Animation Styles) */
@@ -192,68 +202,49 @@
 </head>
 <body class="h-screen-safe flex flex-col items-center">
 
-    <!-- الحاوية الرئيسية للتطبيق، محددة بأقصى عرض للهاتف (max-w-md) لتبدو كالتطبيق الأصلي -->
     <div id="app" class="w-full max-w-md h-screen-safe flex flex-col bg-gray-100 overflow-hidden">
 
-        <!-- رأس الصفحة (Header) - تم تعديل الهيكل لثلاثة أجزاء -->
         <header id="header" class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
-            <!-- حاوية الإجراءات اليسرى (Left Actions) -->
             <div id="header-left-actions" class="w-10 flex items-center">
-                <!-- الإجراءات هنا -->
-            </div>
+                </div>
             
-            <!-- عنوان الصفحة (Title - Centered) -->
             <h1 id="header-title" class="text-xl font-bold text-gray-800 flex-grow text-center">بوابة الطالب</h1>
             
-            <!-- حاوية الإجراءات اليمنى (Right Actions) -->
             <div id="header-right-actions" class="w-10 flex justify-end items-center">
                 <img id="profileImageHeader" src="https://placehold.co/40x40/00A381/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
             </div>
         </header>
 
-        <!-- محتوى الصفحة (Content) -->
         <main id="content" class="flex-grow overflow-y-auto p-4 space-y-4">
-            <!-- سيتم تحميل محتوى الشاشات هنا -->
-        </main>
+            </main>
 
-        <!-- قائمة التنقل السفلية (Bottom Navigation Bar) -->
-        <nav class="bg-[--nav-bg] p-2">
+        <nav class="bg-[--nav-bg]">
             <div class="nav-bar-container">
-                <!-- زر الرئيسية -->
-                <button class="nav-item flex items-center p-0 text-gray-400 active" onclick="navigate('home', this)">
-                    <!-- الحاوية الخضراء أو الرمادية -->
-                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
+                <button class="nav-item active" onclick="navigate('home', this)">
+                    <div>
                         <i data-lucide="home" class="icon w-6 h-6"></i>
+                        <span class="nav-text">الرئيسية</span>
                     </div>
-                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
-                    <span class="nav-text text-xs mt-1">الرئيسية</span>
                 </button>
 
-                <!-- زر البطاقات -->
-                <button class="nav-item flex items-center p-0 text-gray-400" onclick="navigate('cards', this)">
-                    <!-- الحاوية الخضراء أو الرمادية -->
-                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
+                <button class="nav-item" onclick="navigate('cards', this)">
+                    <div>
                         <i data-lucide="credit-card" class="icon w-6 h-6"></i>
+                        <span class="nav-text">البطاقات</span>
                     </div>
-                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
-                    <span class="nav-text text-xs mt-1">البطاقات</span>
                 </button>
 
-                <!-- زر الملف الشخصي -->
-                <button class="nav-item flex items-center p-0 text-gray-400" onclick="navigate('profile', this)">
-                    <!-- الحاوية الخضراء أو الرمادية -->
-                    <div class="bg-active rounded-xl p-4 transition-all duration-300">
+                <button class="nav-item" onclick="navigate('profile', this)">
+                    <div>
                         <i data-lucide="user" class="icon w-6 h-6"></i>
+                        <span class="nav-text">الملف الشخصي</span>
                     </div>
-                    <!-- النص يظهر فقط عندما لا يكون الزر نشطاً -->
-                    <span class="nav-text text-xs mt-1">الملف الشخصي</span>
                 </button>
             </div>
         </nav>
 
     </div>
 
-    <!-- جلب الأيقونات بعد تحميل DOM ومنطق التطبيق -->
     <script>
         
         // جلب العناصر الثابتة في الهيكل الجديد للـ Header
@@ -473,19 +464,16 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 ${directionClass}">${t('edit_modal_title')}</h3>
                         
                         <div class="space-y-4">
-                            <!-- الاسم بالإنجليزية -->
                             <div class="${directionClass}">
                                 <label for="inputEnglishName" class="block text-sm font-medium text-gray-700">${t('edit_english_name_label')}</label>
                                 <input type="text" id="inputEnglishName" value="${userData.englishName}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
 
-                            <!-- مكان الميلاد -->
                             <div class="${directionClass}">
                                 <label for="inputBirthPlace" class="block text-sm font-medium text-gray-700">${t('edit_birth_place_label')}</label>
                                 <input type="text" id="inputBirthPlace" value="${userData.birthPlace}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
 
-                            <!-- تاريخ الميلاد -->
                             <div class="${directionClass}">
                                 <label for="inputBirthDate" class="block text-sm font-medium text-gray-700">${t('edit_birth_date_label')}</label>
                                 <input type="date" id="inputBirthDate" value="${dateForInput}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
@@ -667,47 +655,12 @@
             navItems.forEach(item => {
                 // إزالة فئة 'active' من الجميع
                 item.classList.remove('active');
-                
-                // إعادة الأيقونات إلى وضعها الافتراضي
-                const iconContainer = item.querySelector('.bg-active');
-                const textSpan = item.querySelector('.nav-text');
-                
-                if (iconContainer) {
-                    // التنسيق الافتراضي: دائري و p-3
-                    iconContainer.classList.remove('rounded-xl', 'p-4');
-                    iconContainer.classList.add('rounded-full', 'p-3');
-                }
-                if (textSpan) {
-                     textSpan.style.display = 'block'; // إظهار النص
-                }
-
-                const icon = item.querySelector('.icon');
-                if (icon) {
-                    icon.style.color = '#a0aec0'; // لون الرمادي الافتراضي
-                }
             });
             
             // تفعيل الزر الحالي
             if (clickedButton) {
                 clickedButton.classList.add('active');
-                
-                // تطبيق التنسيق النشط (مربع وزوايا كبيرة و p-4)
-                const activeIconContainer = clickedButton.querySelector('.bg-active');
-                const activeTextSpan = clickedButton.querySelector('.nav-text');
-                const activeIcon = clickedButton.querySelector('.icon');
-                
-                if (activeIconContainer) {
-                    activeIconContainer.classList.remove('rounded-full', 'p-3');
-                    activeIconContainer.classList.add('rounded-xl', 'p-4');
-                }
-                if (activeTextSpan) {
-                     activeTextSpan.style.display = 'none'; // إخفاء النص
-                }
-                if (activeIcon) {
-                    activeIcon.style.color = '#ffffff'; // لون الأيقونة النشطة أبيض
-                }
             }
-
 
             // 2. مسح المحتوى الحالي وعرض المحتوى حسب الشاشة
             contentArea.innerHTML = '';
@@ -840,7 +793,7 @@
                 { titleKey: 'tile_percentage', icon: 'pie-chart' },
                 { titleKey: 'tile_academic_transcripts', icon: 'folder-open' },
                 { titleKey: 'tile_debts', icon: 'calculator' },
-                { tileKey: 'tile_academic_vacation', icon: 'archive' },
+                { titleKey: 'tile_academic_vacation', icon: 'archive' },
                 { titleKey: 'tile_enrollments', icon: 'book-open' },
                 { titleKey: 'tile_restauration', icon: 'utensils' },
                 { titleKey: 'tile_other_services', icon: 'grid' },
@@ -850,11 +803,8 @@
             const directionClass = isRTL ? 'text-right' : 'text-left';
 
             const headerHtml = `
-                <!-- تصميم البانر الأخضر العلوي المطابق للصورة -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 shadow-lg mb-4 text-center">
-                    <!-- PROGRES Logo مع محاذاة في الوسط -->
                     <div class="flex flex-col items-center justify-center space-y-2">
-                        <!-- الشعار نفسه (تم استخدام placeholder بألوان متقاربة) -->
                         <img src="https://placehold.co/150x30/10B981/ffffff?text=PROGRES" alt="PROGRES Logo" class="h-6" onerror="this.src='https://placehold.co/150x30/10B981/ffffff?text=PROGRES'">
                         <p class="text-white text-xs font-light tracking-wide">${t('university_name')}</p>
                     </div>
@@ -882,16 +832,13 @@
                     hover:bg-green-700 
                     active:bg-green-800
                 ">
-                    <!-- الأيقونة يتم استخدامها مع Lucide -->
                     <i data-lucide="${tile.icon}" class="w-6 h-6 mb-1"></i>
-                    <!-- النص باللون الأبيض وحجم أصغر -->
                     <span class="text-sm font-medium leading-tight">${t(tile.titleKey)}</span>
                 </button>
             `).join('');
 
             contentArea.innerHTML = `
                 ${headerHtml}
-                <!-- الشبكة (Grid) 2x2 مع مسافة واسعة بين الخانات (gap-4) -->
                 <div class="grid grid-cols-2 gap-4 pb-4">
                     ${tilesHtml}
                 </div>
@@ -915,13 +862,10 @@
             const cardsHtml = `
                 <div class="w-full max-w-sm p-4 space-y-4">
                     
-                    <!-- حاوية عرض البطاقة -->
                     <div id="cardDisplayArea" class="w-full flex justify-center py-4 transition-opacity duration-300">
-                        <!-- سيتم تحميل البطاقة هنا بواسطة displayCard() -->
-                    </div>
+                        </div>
 
                     <div class="p-4 text-center text-gray-500 text-sm">
-                        <!-- تذكير للمستخدم بكيفية التبديل -->
                         <i data-lucide="chevrons-left-right" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
                         <span>${isRTL ? 'اسحب البطاقة لليمين أو اليسار للتبديل' : 'Swipe card left or right to switch'}</span>
                     </div>
@@ -1004,9 +948,7 @@
                 cardDisplayArea.innerHTML = `
                     <div class="id-card-container">
                         <div id="idCardFlipper" class="id-card-flipper">
-                            <!-- البطاقة الأمامية (طالب) -->
                             <div id="studentCard" class="card-face front bg-white rounded-2xl"></div>
-                            <!-- البطاقة الخلفية (إقامة) -->
                             <div id="residenceCard" class="card-face back bg-white rounded-2xl"></div>
                         </div>
                     </div>
@@ -1079,11 +1021,8 @@
             // المحتوى الفارغ تماماً
             const content = `
                 <div class="relative z-20 w-full h-full">
-                    <!-- محتوى البطاقة فارغ تماماً -->
-                </div>
-                <!-- طبقة التعتيم تبقى موجودة إذا كانت هناك خلفية مخصصة -->
+                    </div>
                 ${cardBackground ? '<div class="card-overlay opacity-20"></div>' : ''}
-                <!-- نمط النقاط الخفيف يبقى للخلفية البيضاء الافتراضية لتبدو كبطاقة ورقية -->
                 ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
             `;
 
@@ -1106,24 +1045,19 @@
             
             // التعديلات هنا: إضافة زر تعديل المعلومات
             const profileHtml = `
-                <!-- بطاقة الاسم والجامعة (الخضراء) -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white ${isRTL ? '' : 'flex-row-reverse'}">
                     <img id="profileImageCard" src="${userData.idCardImage}" alt="${isRTL ? 'صورة المستخدم' : 'User Image'}" class="w-14 h-14 rounded-full object-cover border-2 border-white ${itemMarginClass}">
                     <div class="${directionClass} flex-grow">
-                        <!-- الاسم بالإنجليزية ثابت -->
                         <p class="text-lg font-bold">${userData.englishName}</p>
-                        <!-- الجامعة يتم ترجمتها -->
                         <p class="text-sm font-light">${t('university_name_profile')}</p>
                     </div>
                 </div>
 
-                <!-- زر تعديل المعلومات -->
                 <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 mb-4 flex items-center justify-center">
                     <i data-lucide="edit" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
                     ${t('edit_info_button')}
                 </button>
 
-                <!-- بطاقة مكان الميلاد -->
                 <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md">
                     <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
                     <div class="directionClass} flex-grow">
@@ -1132,7 +1066,6 @@
                     </div>
                 </div>
 
-                <!-- بطاقة تاريخ الميلاد -->
                 <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md mt-4">
                     <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
                     <div class="directionClass} flex-grow">
@@ -1141,49 +1074,37 @@
                     </div>
                 </div>
 
-                <!-- بطاقة تغيير اللغة -->
                 <div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-md mt-4">
                     <div class="flex items-center space-x-3 ${isRTL ? 'space-x-reverse' : ''}">
                         <i data-lucide="languages" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
                         <p class="text-base font-medium text-gray-800">${t('language_switch_label')}</p>
                     </div>
-                    <!-- الزر يستدعي دالة التبديل ويظهر اللغة الحالية -->
                     <button id="languageButton" onclick="toggleLanguage()" class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
                         ${userData.currentLanguage === 'ar-DZ' ? 'English' : 'العربية'}
                     </button>
                 </div>
                 
-                <!-- ********************************************** -->
-                <!-- حاوية أدوات التخصيص (تم نقلها من شاشة البطاقات) -->
-                <!-- ********************************************** -->
                 <div id="customizationControls" class="space-y-4 mt-6">
 
-                     <!-- عنوان قسم الصور مع أزرار الإخفاء/الإظهار -->
-                    <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
+                     <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
                         <h3 class="text-lg font-bold text-gray-800">${t('customization_title')}</h3>
-                        <!-- الأزرار الصغيرة للإخفاء والإظهار -->
                         <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
-                            <!-- زر الإظهار -->
                             <button id="showBtn" onclick="toggleImageInputs(true)" class="toggle-btn ${userData.imageInputsVisible ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
                                 <i data-lucide="eye" class="w-5 h-5"></i>
                             </button>
-                            <!-- زر الإخفاء -->
                             <button id="hideBtn" onclick="toggleImageInputs(false)" class="toggle-btn ${!userData.imageInputsVisible ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('hide_inputs')}">
                                 <i data-lucide="eye-off" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- حاوية حقول إدخال الصور التي سيتم إخفاؤها/إظهارها -->
                     <div id="imageInputsContainer" class="space-y-4" style="display: ${userData.imageInputsVisible ? 'block' : 'none'};"> 
-                        <!-- خاصية رفع الصورة الشخصية (مشتركة) -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                             <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
                             <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
                             <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
                         </div>
 
-                        <!-- 1. خلفية بطاقة الطالب -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                             <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
                             <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
@@ -1193,7 +1114,6 @@
                             </button>
                         </div>
 
-                        <!-- 2. خلفية بطاقة الإقامة -->
                         <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
                             <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
                             <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
@@ -1202,11 +1122,7 @@
                                 ${t('remove_background')}
                             </button>
                         </div>
-                    </div> <!-- نهاية imageInputsContainer -->
-                </div> <!-- نهاية customizationControls -->
-                
-                <!-- زر تسجيل الخروج -->
-                <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
+                    </div> </div> <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
                     ${t('logout_button')}
                 </button>
             `;
