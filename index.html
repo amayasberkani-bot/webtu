@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الطالب | Student Portal</title>
     
+    <!-- تحميل Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تحميل مكتبة Lucide Icons لأيقونات واجهة المستخدم -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* خط إنتر (Inter) هو خط حديث وواضح يناسب التصميم */
@@ -25,10 +27,10 @@
         
         /* الألوان والثوابت - تم تحديثها لتطابق الألوان في الصورة بدقة */
         :root {
-            --primary-green: #2E8B57; /* اللون الأخضر الداكن للملف الشخصي */
+            --primary-green: #5A9C7D; /* اللون الأخضر المحدث من الصورة */
             --tile-bg: #00A381; /* لون أزرار الصفحة الرئيسية والأيقونة النشطة */
             --nav-bg: #353B47; /* لون الشريط السفلي (كحلي/رمادي غامق) */
-            --logout-red: #dc2626; /* لون الأحمر للخروج - red-600 */
+            --logout-red: #C8504B; /* لون الأحمر المحدث من الصورة */
         }
 
         /* لضمان أن التطبيق يملأ الشاشة بالكامل على الجوالات الحديثة (بما في ذلك المساحات الآمنة) */
@@ -202,24 +204,34 @@
 </head>
 <body class="h-screen-safe flex flex-col items-center">
 
+    <!-- الحاوية الرئيسية للتطبيق، محددة بأقصى عرض للهاتف (max-w-md) لتبدو كالتطبيق الأصلي -->
     <div id="app" class="w-full max-w-md h-screen-safe flex flex-col bg-gray-100 overflow-hidden">
 
+        <!-- رأس الصفحة (Header) - تم تعديل الهيكل لثلاثة أجزاء -->
         <header id="header" class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+            <!-- حاوية الإجراءات اليسرى (Left Actions) -->
             <div id="header-left-actions" class="w-10 flex items-center">
-                </div>
+                <!-- الإجراءات هنا -->
+            </div>
             
+            <!-- عنوان الصفحة (Title - Centered) -->
             <h1 id="header-title" class="text-xl font-bold text-gray-800 flex-grow text-center">بوابة الطالب</h1>
             
+            <!-- حاوية الإجراءات اليمنى (Right Actions) -->
             <div id="header-right-actions" class="w-10 flex justify-end items-center">
                 <img id="profileImageHeader" src="https://placehold.co/40x40/00A381/ffffff?text=U" onerror="this.src='https://placehold.co/40x40/00A381/ffffff?text=U'" alt="ملف شخصي" class="rounded-full w-10 h-10 object-cover border-2 border-[--primary-green]">
             </div>
         </header>
 
+        <!-- محتوى الصفحة (Content) -->
         <main id="content" class="flex-grow overflow-y-auto p-4 space-y-4">
-            </main>
+            <!-- سيتم تحميل محتوى الشاشات هنا -->
+        </main>
 
+        <!-- قائمة التنقل السفلية (Bottom Navigation Bar) -->
         <nav class="bg-[--nav-bg]">
             <div class="nav-bar-container">
+                <!-- زر الرئيسية -->
                 <button class="nav-item active" onclick="navigate('home', this)">
                     <div>
                         <i data-lucide="home" class="icon w-6 h-6"></i>
@@ -227,6 +239,7 @@
                     </div>
                 </button>
 
+                <!-- زر البطاقات -->
                 <button class="nav-item" onclick="navigate('cards', this)">
                     <div>
                         <i data-lucide="credit-card" class="icon w-6 h-6"></i>
@@ -234,6 +247,7 @@
                     </div>
                 </button>
 
+                <!-- زر الملف الشخصي -->
                 <button class="nav-item" onclick="navigate('profile', this)">
                     <div>
                         <i data-lucide="user" class="icon w-6 h-6"></i>
@@ -245,6 +259,7 @@
 
     </div>
 
+    <!-- جلب الأيقونات بعد تحميل DOM ومنطق التطبيق -->
     <script>
         
         // جلب العناصر الثابتة في الهيكل الجديد للـ Header
@@ -270,7 +285,7 @@
             name: "بركاني أمياس", // الاسم بالعربية (غير قابل للتعديل هنا)
             englishName: "BERKANI AMAYAS",
             university: "جامعة بجاية",
-            birthDate: "04-12-2005",
+            birthDate: "2005-12-04", // تم التغيير إلى صيغة YYYY-MM-DD
             birthPlace: "بجاية",
             major: "علوم الطبيعة والحياة",
             year: "2025/2026",
@@ -290,11 +305,11 @@
                 'portal_title': 'بوابة الطالب',
                 'nav_home': 'الرئيسية',
                 'nav_cards': 'البطاقات',
-                'nav_profile': 'الملف الشخصي',
-                'profile_title': 'الملف الشخصي',
-                'birth_place_label': 'مكان الميلاد (Place of Birth)',
-                'birth_date_label': 'تاريخ الميلاد (Date of Birth)',
-                'language_switch_label': 'تغيير اللغة (Change Language)',
+                'nav_profile': 'ملفي الشخصي',
+                'profile_title': 'ملفي الشخصي',
+                'birth_place_label': 'مكان الميلاد',
+                'birth_date_label': 'تاريخ الميلاد',
+                'language_switch_label': 'تغيير اللغة',
                 'edit_info_button': 'تعديل المعلومات',
                 'edit_modal_title': 'تعديل بيانات الملف الشخصي',
                 'edit_english_name_label': 'الاسم بالإنجليزية',
@@ -314,7 +329,7 @@
                 'note_student_bg': 'ستظهر كخلفية لبطاقة الطالب.',
                 'change_residence_bg': 'تغيير خلفية بطاقة الإقامة:',
                 'note_residence_bg': 'ستظهر كخلفية لبطاقة الإقامة.',
-                'customization_title': 'أدوات التخصيص (Customize Tools)',
+                'customization_title': 'أدوات التخصيص',
                 'show_inputs': 'إظهار حقول التخصيص',
                 'hide_inputs': 'إخفاء حقول التخصيص',
                 'success': 'نجاح',
@@ -338,17 +353,17 @@
                 // نصوص البطاقات
                 'card_student_id': 'بطاقة الطالب',
                 'card_residence_id': 'بطاقة الإقامة الجامعية',
-                'card_screen_title': 'البطاقات', // العنوان الثابت لشاشة البطاقات
+                'card_screen_title': 'البطاقات',
             },
-            'en-US': { // تم تغيير المفتاح من fr-DZ إلى en-US
+            'en-DZ': { 
                 'portal_title': 'Student Portal',
                 'nav_home': 'Home',
                 'nav_cards': 'Cards',
-                'nav_profile': 'Profile',
-                'profile_title': 'Profile',
-                'birth_place_label': 'Place of Birth (مكان الميلاد)',
-                'birth_date_label': 'Date of Birth (تاريخ الميلاد)',
-                'language_switch_label': 'Change Language (تغيير اللغة)',
+                'nav_profile': 'My Profile',
+                'profile_title': 'My Profile',
+                'birth_place_label': 'Place of Birth',
+                'birth_date_label': 'Date of Birth',
+                'language_switch_label': 'Change Language',
                 'edit_info_button': 'Edit Information',
                 'edit_modal_title': 'Edit Profile Data',
                 'edit_english_name_label': 'Name in English',
@@ -358,7 +373,7 @@
                 'cancel_button': 'Cancel',
                 'logout_button': 'LOGOUT',
                 'university_name': 'Ministry of Higher Education and Scientific Research',
-                'university_name_profile': 'University of Bejaia',
+                'university_name_profile': 'université de béjaia',
                 'student_card_button': 'Student Card',
                 'residence_card_button': 'Residence Card',
                 'remove_background': 'Remove Background',
@@ -392,7 +407,7 @@
                 // نصوص البطاقات
                 'card_student_id': 'Student ID Card',
                 'card_residence_id': 'University Residence Card',
-                'card_screen_title': 'My Card', // العنوان الثابت لشاشة البطاقات
+                'card_screen_title': 'My Card',
             }
         };
 
@@ -412,9 +427,9 @@
          * دالة لتبديل اللغة وتحديث اتجاه الواجهة بالكامل
          */
         function toggleLanguage() {
-            // 1. التبديل بين العربية (ar-DZ) والإنجليزية (en-US)
+            // 1. التبديل بين العربية (ar-DZ) والإنجليزية (en-DZ)
             if (userData.currentLanguage === 'ar-DZ') {
-                userData.currentLanguage = 'en-US';
+                userData.currentLanguage = 'en-DZ';
                 htmlElement.setAttribute('lang', 'en');
                 htmlElement.setAttribute('dir', 'ltr');
                 document.getElementById('app').classList.add('text-left');
@@ -453,10 +468,7 @@
 
             const isRTL = userData.currentLanguage === 'ar-DZ';
             const directionClass = isRTL ? 'text-right' : 'text-left';
-
-            // تحويل التاريخ من DD-MM-YYYY إلى YYYY-MM-DD لصالح حقل input type="date"
-            const dateForInput = userData.birthDate.split('-').reverse().join('-');
-
+            
             // إنشاء مودال HTML بسيط
             const modalHtml = `
                 <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -464,19 +476,22 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 ${directionClass}">${t('edit_modal_title')}</h3>
                         
                         <div class="space-y-4">
+                            <!-- الاسم بالإنجليزية -->
                             <div class="${directionClass}">
                                 <label for="inputEnglishName" class="block text-sm font-medium text-gray-700">${t('edit_english_name_label')}</label>
                                 <input type="text" id="inputEnglishName" value="${userData.englishName}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
 
+                            <!-- مكان الميلاد -->
                             <div class="${directionClass}">
                                 <label for="inputBirthPlace" class="block text-sm font-medium text-gray-700">${t('edit_birth_place_label')}</label>
                                 <input type="text" id="inputBirthPlace" value="${userData.birthPlace}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
 
+                            <!-- تاريخ الميلاد -->
                             <div class="${directionClass}">
                                 <label for="inputBirthDate" class="block text-sm font-medium text-gray-700">${t('edit_birth_date_label')}</label>
-                                <input type="date" id="inputBirthDate" value="${dateForInput}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
+                                <input type="date" id="inputBirthDate" value="${userData.birthDate}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-[--primary-green] focus:border-[--primary-green] sm:text-sm">
                             </div>
                         </div>
 
@@ -509,20 +524,12 @@
         function saveProfileChanges() {
             const englishName = document.getElementById('inputEnglishName').value;
             const birthPlace = document.getElementById('inputBirthPlace').value;
-            const birthDateISO = document.getElementById('inputBirthDate').value;
-
-            // تحويل تاريخ ISO إلى صيغة DD-MM-YYYY
-            let birthDateDisplay = userData.birthDate;
-            if (birthDateISO) {
-                const dateParts = birthDateISO.split('-'); // [YYYY, MM, DD]
-                birthDateDisplay = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // DD-MM-YYYY
-            }
-
-
+            const birthDate = document.getElementById('inputBirthDate').value;
+            
             // تحديث البيانات
             userData.englishName = englishName.toUpperCase();
             userData.birthPlace = birthPlace;
-            userData.birthDate = birthDateDisplay;
+            userData.birthDate = birthDate;
 
             // إغلاق المودال
             const modal = document.getElementById('editProfileModal');
@@ -803,8 +810,11 @@
             const directionClass = isRTL ? 'text-right' : 'text-left';
 
             const headerHtml = `
+                <!-- تصميم البانر الأخضر العلوي المطابق للصورة -->
                 <div class="bg-[--primary-green] rounded-2xl p-4 shadow-lg mb-4 text-center">
+                    <!-- PROGRES Logo مع محاذاة في الوسط -->
                     <div class="flex flex-col items-center justify-center space-y-2">
+                        <!-- الشعار نفسه (تم استخدام placeholder بألوان متقاربة) -->
                         <img src="https://placehold.co/150x30/10B981/ffffff?text=PROGRES" alt="PROGRES Logo" class="h-6" onerror="this.src='https://placehold.co/150x30/10B981/ffffff?text=PROGRES'">
                         <p class="text-white text-xs font-light tracking-wide">${t('university_name')}</p>
                     </div>
@@ -832,13 +842,16 @@
                     hover:bg-green-700 
                     active:bg-green-800
                 ">
+                    <!-- الأيقونة يتم استخدامها مع Lucide -->
                     <i data-lucide="${tile.icon}" class="w-6 h-6 mb-1"></i>
+                    <!-- النص باللون الأبيض وحجم أصغر -->
                     <span class="text-sm font-medium leading-tight">${t(tile.titleKey)}</span>
                 </button>
             `).join('');
 
             contentArea.innerHTML = `
                 ${headerHtml}
+                <!-- الشبكة (Grid) 2x2 مع مسافة واسعة بين الخانات (gap-4) -->
                 <div class="grid grid-cols-2 gap-4 pb-4">
                     ${tilesHtml}
                 </div>
@@ -862,10 +875,13 @@
             const cardsHtml = `
                 <div class="w-full max-w-sm p-4 space-y-4">
                     
+                    <!-- حاوية عرض البطاقة -->
                     <div id="cardDisplayArea" class="w-full flex justify-center py-4 transition-opacity duration-300">
-                        </div>
+                        <!-- سيتم تحميل البطاقة هنا بواسطة displayCard() -->
+                    </div>
 
                     <div class="p-4 text-center text-gray-500 text-sm">
+                        <!-- تذكير للمستخدم بكيفية التبديل -->
                         <i data-lucide="chevrons-left-right" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
                         <span>${isRTL ? 'اسحب البطاقة لليمين أو اليسار للتبديل' : 'Swipe card left or right to switch'}</span>
                     </div>
@@ -948,7 +964,9 @@
                 cardDisplayArea.innerHTML = `
                     <div class="id-card-container">
                         <div id="idCardFlipper" class="id-card-flipper">
+                            <!-- البطاقة الأمامية (طالب) -->
                             <div id="studentCard" class="card-face front bg-white rounded-2xl"></div>
+                            <!-- البطاقة الخلفية (إقامة) -->
                             <div id="residenceCard" class="card-face back bg-white rounded-2xl"></div>
                         </div>
                     </div>
@@ -1021,8 +1039,11 @@
             // المحتوى الفارغ تماماً
             const content = `
                 <div class="relative z-20 w-full h-full">
-                    </div>
+                    <!-- محتوى البطاقة فارغ تماماً -->
+                </div>
+                <!-- طبقة التعتيم تبقى موجودة إذا كانت هناك خلفية مخصصة -->
                 ${cardBackground ? '<div class="card-overlay opacity-20"></div>' : ''}
+                <!-- نمط النقاط الخفيف يبقى للخلفية البيضاء الافتراضية لتبدو كبطاقة ورقية -->
                 ${cardBackground ? '' : '<div class="absolute inset-0 bg-repeat opacity-5" style="background-image: radial-gradient(#efefef 1px, transparent 1px); background-size: 8px 8px;"></div>'}
             `;
 
@@ -1043,51 +1064,60 @@
             const directionClass = isRTL ? 'text-right' : 'text-left';
             const itemMarginClass = isRTL ? 'ml-4' : 'mr-4'; // عكس الهامش الجانبي
             
-            // التعديلات هنا: إضافة زر تعديل المعلومات
+            // **إعادة إضافة الأزرار المحذوفة**
             const profileHtml = `
-                <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg mb-4 text-white ${isRTL ? '' : 'flex-row-reverse'}">
-                    <img id="profileImageCard" src="${userData.idCardImage}" alt="${isRTL ? 'صورة المستخدم' : 'User Image'}" class="w-14 h-14 rounded-full object-cover border-2 border-white ${itemMarginClass}">
+                <!-- بطاقة الاسم والجامعة (الخضراء) -->
+                <div class="bg-[--primary-green] rounded-2xl p-4 flex items-center shadow-lg text-white ${isRTL ? '' : 'flex-row-reverse'}">
+                    <img id="profileImageCard" src="${userData.idCardImage}" alt="${isRTL ? 'صورة المستخدم' : 'User Image'}" class="w-16 h-16 rounded-full object-cover border-2 border-white ${itemMarginClass}">
                     <div class="${directionClass} flex-grow">
                         <p class="text-lg font-bold">${userData.englishName}</p>
                         <p class="text-sm font-light">${t('university_name_profile')}</p>
                     </div>
                 </div>
 
-                <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 mb-4 flex items-center justify-center">
-                    <i data-lucide="edit" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
-                    ${t('edit_info_button')}
-                </button>
-
-                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md">
-                    <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="directionClass} flex-grow">
-                        <p class="text-sm font-medium text-gray-500">${t('birth_place_label')}</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthPlace}</p>
+                <!-- بطاقة معلومات الميلاد المدمجة -->
+                <div class="bg-white rounded-2xl p-4 shadow-md border border-gray-200 space-y-4">
+                    <!-- مكان الميلاد -->
+                    <div class="flex items-center space-x-4 ${isRTL ? 'space-x-reverse' : ''}">
+                        <i data-lucide="map-pin" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
+                        <div class="${directionClass} flex-grow">
+                            <p class="text-sm font-medium text-gray-500">${t('birth_place_label')}</p>
+                            <p class="text-base font-semibold text-gray-800">${userData.birthPlace}</p>
+                        </div>
+                    </div>
+                    <hr class="border-gray-200" />
+                    <!-- تاريخ الميلاد -->
+                    <div class="flex items-center space-x-4 ${isRTL ? 'space-x-reverse' : ''}">
+                        <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
+                        <div class="directionClass} flex-grow">
+                            <p class="text-sm font-medium text-gray-500">${t('birth_date_label')}</p>
+                            <p class="text-base font-semibold text-gray-800">${userData.birthDate}</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 flex items-start space-x-3 ${isRTL ? 'space-x-reverse' : ''} shadow-md mt-4">
-                    <i data-lucide="calendar" class="w-6 h-6 text-[--primary-green] flex-shrink-0 mt-0.5"></i>
-                    <div class="directionClass} flex-grow">
-                        <p class="text-sm font-medium text-gray-500">${t('birth_date_label')}</p>
-                        <p class="text-lg font-bold text-gray-800 mt-1">${userData.birthDate}</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-md mt-4">
+                <!-- بطاقة تغيير اللغة -->
+                <div class="bg-white rounded-2xl p-4 flex justify-between items-center shadow-md border border-gray-200">
                     <div class="flex items-center space-x-3 ${isRTL ? 'space-x-reverse' : ''}">
                         <i data-lucide="languages" class="w-6 h-6 text-[--primary-green] flex-shrink-0"></i>
                         <p class="text-base font-medium text-gray-800">${t('language_switch_label')}</p>
                     </div>
-                    <button id="languageButton" onclick="toggleLanguage()" class="bg-[--primary-green] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition duration-150">
-                        ${userData.currentLanguage === 'ar-DZ' ? 'English' : 'العربية'}
+                    <button id="languageButton" onclick="toggleLanguage()" class="bg-gray-100 text-[--primary-green] px-4 py-2 rounded-xl font-bold text-sm border border-gray-200 hover:bg-gray-200 transition duration-150">
+                        ${userData.currentLanguage.toUpperCase()}
                     </button>
                 </div>
-                
-                <div id="customizationControls" class="space-y-4 mt-6">
 
-                     <div class="flex justify-between items-center bg-gray-100 p-2 rounded-lg border-b border-gray-300">
-                        <h3 class="text-lg font-bold text-gray-800">${t('customization_title')}</h3>
+                <!-- زر تعديل المعلومات -->
+                <button onclick="openEditProfileModal()" class="w-full bg-blue-500 text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:bg-blue-600 transition duration-150 flex items-center justify-center">
+                    <i data-lucide="edit" class="w-5 h-5 inline-block ${isRTL ? 'ml-2' : 'mr-2'}"></i>
+                    ${t('edit_info_button')}
+                </button>
+
+                <!-- حاوية أدوات التخصيص -->
+                <div id="customizationControls" class="space-y-4">
+                     <!-- عنوان قسم الصور مع أزرار الإخفاء/الإظهار -->
+                    <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-base font-bold text-gray-800">${t('customization_title')}</h3>
                         <div class="flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}">
                             <button id="showBtn" onclick="toggleImageInputs(true)" class="toggle-btn ${userData.imageInputsVisible ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} rounded-full hover:bg-gray-300 transition duration-150 shadow-inner" title="${t('show_inputs')}">
                                 <i data-lucide="eye" class="w-5 h-5"></i>
@@ -1098,14 +1128,14 @@
                         </div>
                     </div>
 
+                    <!-- حاوية حقول إدخال الصور -->
                     <div id="imageInputsContainer" class="space-y-4" style="display: ${userData.imageInputsVisible ? 'block' : 'none'};"> 
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3 border border-gray-200">
                             <p class="text-sm font-bold text-gray-700">${t('change_profile_image')}</p>
                             <input type="file" id="imageUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
                             <p class="text-xs text-gray-500 mt-2">${t('note_image_shared')}</p>
                         </div>
-
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3 border border-gray-200">
                             <p class="text-sm font-bold text-gray-700">${t('change_student_bg')}</p>
                             <input type="file" id="studentBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
                             <p class="text-xs text-gray-500 mt-2">${t('note_student_bg')}</p>
@@ -1113,8 +1143,7 @@
                                 ${t('remove_background')}
                             </button>
                         </div>
-
-                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3">
+                        <div class="bg-white p-4 rounded-xl shadow-md space-y-3 border border-gray-200">
                             <p class="text-sm font-bold text-gray-700">${t('change_residence_bg')}</p>
                             <input type="file" id="residenceBackgroundUploader" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 cursor-pointer">
                             <p class="text-xs text-gray-500 mt-2">${t('note_residence_bg')}</p>
@@ -1122,31 +1151,30 @@
                                 ${t('remove_background')}
                             </button>
                         </div>
-                    </div> </div> <button class="w-full bg-[--logout-red] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-red-700 transition duration-150 mt-6">
+                    </div>
+                </div>
+                               
+                <!-- زر تسجيل الخروج -->
+                <button class="w-full bg-[--logout-red] text-white p-3 rounded-2xl font-bold text-base shadow-lg hover:opacity-90 transition duration-150">
                     ${t('logout_button')}
                 </button>
             `;
             contentArea.innerHTML = profileHtml;
-            // إزالة فئات توسيط البطاقة لصفحة الملف الشخصي
+            
             contentArea.classList.remove('flex', 'flex-col', 'items-center', 'justify-center');
             contentArea.classList.add('p-4', 'space-y-4');
-            
-            // **ربط مستمعات الأحداث لرفع الصور**
-            
-            // منطق تحميل الصورة الشخصية (مشتركة)
+
+            // **إعادة ربط مستمعات الأحداث لرفع الصور**
             document.getElementById('imageUploader').addEventListener('change', function(event) {
                 const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         userData.idCardImage = e.target.result;
-                        // تحديث الصورة في الهيدر والبطاقة (التي ما زالت تظهر في الهيدر)
                         const profileImageHeader = document.getElementById('profileImageHeader');
                         if(profileImageHeader) profileImageHeader.src = userData.idCardImage;
-                        // تحديث الصورة في صفحة الملف الشخصي
                         const profileImageCard = document.getElementById('profileImageCard');
                         if(profileImageCard) profileImageCard.src = userData.idCardImage;
-                        // إعادة عرض البطاقة لتحديث الصورة إذا كان المستخدم في شاشة البطاقات حالياً
                         const activeNavButton = document.querySelector('.nav-item.active');
                         if (activeNavButton.getAttribute('onclick').includes('cards')) {
                              displayCard(userData.currentCardType);
@@ -1156,12 +1184,10 @@
                 }
             });
 
-            // منطق تحميل خلفية بطاقة الطالب
             document.getElementById('studentBackgroundUploader').addEventListener('change', function(event) {
                 handleBackgroundUpload(event, 'student');
             });
 
-            // منطق تحميل خلفية بطاقة الإقامة
             document.getElementById('residenceBackgroundUploader').addEventListener('change', function(event) {
                 handleBackgroundUpload(event, 'residence');
             });
@@ -1170,3 +1196,4 @@
     </script>
 </body>
 </html>
+
