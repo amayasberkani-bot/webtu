@@ -14,7 +14,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7; /* لون الخلفية الفاتح */
+            background-color: #f7f7ff; /* لون الخلفية الفاتح */
         }
         /* إخفاء شريط التمرير (Scrollbar) في الـ body للجوال */
         body::-webkit-scrollbar {
@@ -43,10 +43,12 @@
         /* START: New Bottom Navigation Bar Styles */
         /* ---------------------------------------------------------------------- */
 
-        /* تعديلات على حاوية الشريط الرئيسية لمنح مساحة للزر المرتفع */
+        /* حاوية الشريط الرئيسية */
         nav.bg-\[\--nav-bg\] {
             padding-top: 16px; /* توفير مساحة في الأعلى لارتفاع الزر */
-            overflow: hidden; /* إخفاء أي أجزاء قد تبرز من الجوانب */
+            /* إضافة مساحة سفلية لضمان ظهور الشريط كاملاً والتعامل مع هوامش الأمان */
+            padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
+            /* تم حذف 'overflow: hidden' للسماح للزر المرتفع بالظهور كاملاً */
         }
         
         /* الحاوية الداخلية للأزرار */
@@ -204,10 +206,10 @@
 </head>
 <body class="h-screen-safe flex flex-col items-center">
 
-    <!-- الحاوية الرئيسية للتطبيق، محددة بأقصى عرض للهاتف (max-w-md) لتبدو كالتطبيق الأصلي -->
-    <div id="app" class="w-full max-w-md h-screen-safe flex flex-col bg-gray-100 overflow-hidden">
+    <!-- الحاوية الرئيسية للتطبيق -->
+    <div id="app" class="w-full max-w-md h-screen-safe flex flex-col bg-gray-100">
 
-        <!-- رأس الصفحة (Header) - تم تعديل الهيكل لثلاثة أجزاء -->
+        <!-- رأس الصفحة (Header) -->
         <header id="header" class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
             <!-- حاوية الإجراءات اليسرى (Left Actions) -->
             <div id="header-left-actions" class="w-10 flex items-center">
@@ -228,7 +230,7 @@
             <!-- سيتم تحميل محتوى الشاشات هنا -->
         </main>
 
-        <!-- قائمة التنقل السفلية (Bottom Navigation Bar) -->
+        <!-- قائمة التنقل السفلية -->
         <nav class="bg-[--nav-bg]">
             <div class="nav-bar-container">
                 <!-- زر الرئيسية -->
